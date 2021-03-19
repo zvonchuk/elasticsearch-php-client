@@ -10,7 +10,7 @@
  * permission of Yoplastic team.
  */
 
-namespace Yoxla\Elastic;
+namespace Zvonchuk\Elastic;
 
 use Elasticable;
 use Yoxla\Elastic\Driver\Builder;
