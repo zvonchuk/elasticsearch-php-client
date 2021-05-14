@@ -1,0 +1,25 @@
+{
+  "name": "zvonchuk/elasticsearch-php-client",
+  "description": "PHP High Level REST Client",
+  "keywords": [
+    "elasticsearch",
+    "php"
+  ],
+  "homepage": "https://github.com/zvonchuk/elasticsearch-php-client",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "German Zvonchuk",
+      "email": "german.zvonchuk@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+        "elasticsearch/elasticsearch": "^7.11"
+  },
+  "autoload": {
+    "psr-4": {
+      "Zvonchuk\\Elastic\\": "src"
+    }
+  }
+}
