@@ -3,11 +3,13 @@
 namespace Zvonchuk\Elastic\Search\Aggregations;
 
 use Zvonchuk\Elastic\Query\QueryBuilder;
+use Zvonchuk\Elastic\Search\Aggregations\Bucket\DateHistogramBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Bucket\GeoHashGridAggregationBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Bucket\HistogramBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Bucket\PercentilesBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Bucket\TermsBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Filter\FilterBuilder;
+use Zvonchuk\Elastic\Search\Aggregations\Metrics\AvgBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Metrics\ExtendedStatsBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Metrics\GeoCentroidBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\Metrics\StatsBuilder;
@@ -57,5 +59,15 @@ class AggregationBuilders
     public static function geoHashGrid(string $name): GeoHashGridAggregationBuilder
     {
         return new GeoHashGridAggregationBuilder($name);
+    }
+
+    public static function dateHistogram(string $name): DateHistogramBuilder
+    {
+        return new DateHistogramBuilder($name);
+    }
+
+    public static function avg(string $name): AvgBuilder
+    {
+        return new AvgBuilder($name);
     }
 }
