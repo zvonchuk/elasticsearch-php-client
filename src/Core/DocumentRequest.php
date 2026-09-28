@@ -11,9 +11,9 @@ abstract class DocumentRequest extends Request
 {
     protected ?string $id = null;
 
-    public function id(string $id): static
+    public function id(int|string $id): static
     {
-        $this->id = $id;
+        $this->id = (string) $id;
         return $this;
     }
 

@@ -64,4 +64,10 @@ final class OptionalPartsTest extends TestCase
         $this->expectExceptionMessage('document id');
         $request->getSource();
     }
+
+    public function testIntegerIdsAreAccepted(): void
+    {
+        self::assertRenders('{"index":"p","id":"42"}', (new GetRequest('p'))->id(42)->toArray());
+        self::assertRenders('{"index":"p","id":"42","body":{"a":1}}', (new IndexRequest('p'))->id(42)->source(['a' => 1])->toArray());
+    }
 }
