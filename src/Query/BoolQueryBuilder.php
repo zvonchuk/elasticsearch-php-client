@@ -42,9 +42,9 @@ class BoolQueryBuilder extends QueryBuilder
     public function getSource()
     {
         $clauses = [];
-        foreach (['must', 'mustNot', 'filter', 'should'] as $clause) {
+        foreach (['must' => 'must', 'must_not' => 'mustNot', 'filter' => 'filter', 'should' => 'should'] as $key => $clause) {
             if (count($this->{$clause . 'Clauses'})) {
-                $clauses[$clause] = $this->{$clause . 'Clauses'};
+                $clauses[$key] = $this->{$clause . 'Clauses'};
             }
         }
 

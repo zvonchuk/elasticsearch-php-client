@@ -93,4 +93,12 @@ final class QueryBuildersTest extends TestCase
             QueryBuilders::geoDistanceQuery('pin')->distance('5km')->point(40.4, 49.86)->getSource(),
         );
     }
+
+    public function testBoolMustNotUsesTheElasticsearchKey(): void
+    {
+        self::assertRenders(
+            '{"bool":{"must_not":[{"term":{"status":{"value":"deleted"}}}]}}',
+            QueryBuilders::boolQuery()->mustNot(QueryBuilders::termQuery('status', 'deleted'))->getSource(),
+        );
+    }
 }

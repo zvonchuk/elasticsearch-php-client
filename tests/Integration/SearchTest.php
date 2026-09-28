@@ -97,4 +97,18 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['near'], array_column($response->getHits(), '_id'));
     }
+
+    public function testMustNotExcludesDocuments(): void
+    {
+        $this->seed([
+            '1' => ['status' => 'active'],
+            '2' => ['status' => 'deleted'],
+        ], ['status' => ['type' => 'keyword']]);
+
+        $query = QueryBuilders::boolQuery()->mustNot(QueryBuilders::termQuery('status', 'deleted'));
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        self::assertSame(['1'], array_column($response->getHits(), '_id'));
+    }
 }
