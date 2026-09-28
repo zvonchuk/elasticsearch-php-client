@@ -238,4 +238,16 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['both'], array_column($response->getHits(), '_id'));
     }
+
+    public function testFuzzyMatchPrefixLength(): void
+    {
+        $this->seed(['1' => ['name' => 'huseynov']], ['name' => ['type' => 'text']]);
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $hits = fn (int $prefixLength) => count($client->search((new SearchRequest($this->index))->source(
+            (new SearchSourceBuilder())->query(QueryBuilders::matchQuery('name', 'guseynov')->fuzziness(1)->prefixLength($prefixLength)),
+        ))->getHits());
+
+        self::assertSame(1, $hits(0), 'a typo in the first letter is found when no prefix has to match');
+        self::assertSame(0, $hits(1), 'and missed when the first letter has to match exactly');
+    }
 }
