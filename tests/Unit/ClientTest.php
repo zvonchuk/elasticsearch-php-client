@@ -33,7 +33,9 @@ final class ClientTest extends TestCase
         $elastic = $this->createMock(ElasticsearchClient::class);
         $elastic->expects(self::never())->method('msearch');
 
-        self::assertCount(0, (new Client($elastic))->msearch(new MultiSearchRequest()));
+        $response = (new Client($elastic))->msearch(new MultiSearchRequest());
+        self::assertCount(0, $response);
+        self::assertSame([], $response->all());
     }
 
     public function testTwoClientsForDifferentClustersAreIndependent(): void

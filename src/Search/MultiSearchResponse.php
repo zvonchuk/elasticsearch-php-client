@@ -42,7 +42,12 @@ class MultiSearchResponse implements \Countable
      */
     public function all(): array
     {
-        return array_map(fn (int $position): SearchResponse => $this->get($position), range(0, $this->count() - 1));
+        $responses = [];
+        for ($position = 0; $position < $this->count(); $position++) {
+            $responses[] = $this->get($position);
+        }
+
+        return $responses;
     }
 
     /**

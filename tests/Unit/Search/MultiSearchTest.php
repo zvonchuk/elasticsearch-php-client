@@ -61,4 +61,13 @@ final class MultiSearchTest extends TestCase
             self::assertStringContainsString('no such index [hms]', $e->getMessage());
         }
     }
+
+    public function testEmptyResponse(): void
+    {
+        $response = new MultiSearchResponse(['responses' => []]);
+
+        self::assertCount(0, $response);
+        self::assertSame([], $response->all());
+        self::assertSame([], $response->failures());
+    }
 }
