@@ -8,6 +8,9 @@ class FieldSort extends SortBuilder
 {
     public function __construct(private readonly string $field)
     {
+        if ($field === '_score') {
+            $this->order = self::DESC; // best matches first, as in Elasticsearch
+        }
     }
 
     public function toArray(): array

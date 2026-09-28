@@ -12,7 +12,8 @@ First stable release. Requires PHP 8.1+. See [UPGRADE-1.0.md](UPGRADE-1.0.md) fo
 - `terms`, `histogram` and metric aggregations silently dropped sub-aggregations; metrics now reject them with a `LogicException`, as Elasticsearch would.
 - `percentiles` without `percents()` sent `0` and returned only the 0th percentile; it now uses the Elasticsearch default set.
 - `GeoSort`/`ScriptSort` validation threw `Class "…\Sort\Exception" not found` instead of an `InvalidArgumentException`.
-- `GeoSort` rejected its own `NAUTICALMILES` unit, ignored the field name (always `location`) and sorted farthest first by default; it now sorts closest first, as documented.
+- `GeoSort` rejected its own `NAUTICALMILES` unit and ignored the field name (always `location`).
+- Sorts defaulted to descending although the documentation (and Elasticsearch) default to ascending, so `fieldSort('price')` returned the most expensive first and a geo distance sort the farthest first. Field, geo distance and script sorts are now ascending by default; a field sort on `_score` stays descending.
 - `geo_distance` ignored the field name (always `location`).
 - `bool` sent `mustNot` instead of `must_not` (a warning in Elasticsearch 7, an error in 8).
 - `bool`, sub-aggregations, sorts and aggregations captured their children when added; later changes to a child were lost.

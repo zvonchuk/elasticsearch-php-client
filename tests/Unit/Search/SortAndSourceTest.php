@@ -22,7 +22,7 @@ final class SortAndSourceTest extends TestCase
     public function testScriptSort(): void
     {
         self::assertRenders(
-            '{"_script":{"order":"desc","type":"number","script":{"lang":"painless","source":"doc[\'a\'].value * 2"}}}',
+            '{"_script":{"order":"asc","type":"number","script":{"lang":"painless","source":"doc[\'a\'].value * 2"}}}',
             SortBuilders::scriptSort("doc['a'].value * 2", ScriptSort::NUMBER)->getSource(),
         );
     }
@@ -46,7 +46,7 @@ final class SortAndSourceTest extends TestCase
 
         self::assertRenders(
             '{"query":{"term":{"status":{"value":"active"}}},"aggregations":{"avg_price":{"avg":{"field":"price"}}},'
-            . '"size":5,"from":20,"_source":{"includes":["id","title"],"excludes":["body"]},"sort":[{"price":"desc"}],'
+            . '"size":5,"from":20,"_source":{"includes":["id","title"],"excludes":["body"]},"sort":[{"price":"asc"}],'
             . '"search_after":[100,"x"]}',
             $source->getQuery(),
         );
@@ -71,7 +71,7 @@ final class SortAndSourceTest extends TestCase
             ->sort(SortBuilders::geoDistanceSort('home', 40.4, 49.8))
             ->sort(SortBuilders::geoDistanceSort('work', 40.3, 49.9))
             ->sort(SortBuilders::fieldSort('price')->order(SortBuilder::ASC))
-            ->sort(SortBuilders::fieldSort('price'));
+            ->sort(SortBuilders::fieldSort('price')->order(SortBuilder::DESC));
 
         self::assertRenders(
             '{"size":10,"from":0,"sort":[{"_geo_distance":{"home":{"lat":40.4,"lon":49.8},"order":"asc","unit":"m"}},'

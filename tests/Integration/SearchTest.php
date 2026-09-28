@@ -448,8 +448,8 @@ final class SearchTest extends IntegrationTestCase
         ], ['group' => ['type' => 'integer'], 'price' => ['type' => 'integer']]);
 
         $source = (new SearchSourceBuilder())
-            ->sort(SortBuilders::fieldSort('group'))                       // desc
-            ->sort(SortBuilders::fieldSort('price')->order('asc'));        // then cheapest first
+            ->sort(SortBuilders::fieldSort('group')->order('desc'))
+            ->sort(SortBuilders::fieldSort('price'));                       // then cheapest first (ascending default)
         $response = $this->client()->search((new SearchRequest($this->index))->source($source));
 
         self::assertSame(['b', 'a', 'c'], array_column($response->getHits(), '_id'));

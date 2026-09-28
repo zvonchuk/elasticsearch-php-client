@@ -43,9 +43,11 @@ final class SortValidationTest extends TestCase
         );
     }
 
-    public function testGeoSortIsClosestFirstByDefault(): void
+    public function testSortsAreAscendingByDefaultExceptScore(): void
     {
         self::assertSame(SortBuilder::ASC, SortBuilders::geoDistanceSort('pin', 40.4, 49.8)->toArray()['_geo_distance']['order']);
-        self::assertSame(SortBuilder::DESC, SortBuilders::fieldSort('price')->toArray()['price'], 'field sort keeps its default');
+        self::assertSame(SortBuilder::ASC, SortBuilders::fieldSort('price')->toArray()['price']);
+        self::assertSame(SortBuilder::ASC, SortBuilders::scriptSort('doc.x', 'number')->toArray()['_script']['order']);
+        self::assertSame(SortBuilder::DESC, SortBuilders::fieldSort('_score')->toArray()['_score'], 'best matches first, as in Elasticsearch');
     }
 }

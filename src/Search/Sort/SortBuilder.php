@@ -9,7 +9,8 @@ abstract class SortBuilder implements SortInterface
     public const DESC = 'desc';
     public const ASC = 'asc';
 
-    protected string $order = self::DESC;
+    /** Ascending unless set otherwise, as in Elasticsearch (FieldSort on _score defaults to descending). */
+    protected string $order = self::ASC;
 
     public function order(string $order): static
     {

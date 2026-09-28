@@ -26,7 +26,7 @@ Check these if your code relied on them:
 | 0.x | 1.0 |
 |---|---|
 | `geo_distance` and geo distance sort used a field named `location` whatever you passed | the field you pass is used |
-| geo distance sort defaulted to farthest first | closest first (`order(SortBuilder::DESC)` for the old order) |
+| sorts without `order()` were descending (geo: farthest first) | ascending, as documented; `_score` stays descending. Add `->order(SortBuilder::DESC)` where you relied on the old default |
 | `termQuery('active', true)` sent `"1"` | sends `true`; numbers are sent as numbers |
 | `bool` sent `mustNot` | sends `must_not` |
 | `sort` was one merged object (`{"price":"desc","_script":…}`), duplicate keys lost | a list of sort objects in the order added |

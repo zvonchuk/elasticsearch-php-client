@@ -25,7 +25,6 @@ class GeoSort extends SortBuilder
 
     public function __construct(private readonly string $field, private readonly float $lat, private readonly float $lon)
     {
-        $this->order = self::ASC; // closest first, as in Elasticsearch
     }
 
     public function unit(string $unit): static
