@@ -12,8 +12,8 @@ use Zvonchuk\Elastic\Search\Aggregations\MetricAggregationBuilder;
 class PercentilesBuilder extends MetricAggregationBuilder
 {
     private ?string $field = null;
-    /** @var list<int|float>|int */
-    private array|int $percents = 0;
+    /** @var list<int|float>|null null = Elasticsearch default (1, 5, 25, 50, 75, 95, 99) */
+    private ?array $percents = null;
     private int|float $compression = 100;
     private bool $keyed = true;
 
@@ -44,11 +44,13 @@ class PercentilesBuilder extends MetricAggregationBuilder
 
     public function toArray(): array
     {
-        return $this->render(['percentiles' => [
-            'field' => $this->field,
-            'percents' => $this->percents,
-            'tdigest' => ['compression' => $this->compression],
-            'keyed' => $this->keyed,
-        ]]);
+        $body = ['field' => $this->field];
+        if ($this->percents !== null) {
+            $body['percents'] = $this->percents;
+        }
+        $body['tdigest'] = ['compression' => $this->compression];
+        $body['keyed'] = $this->keyed;
+
+        return $this->render(['percentiles' => $body]);
     }
 }

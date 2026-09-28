@@ -67,4 +67,12 @@ final class AggregationBuildersTest extends TestCase
             AggregationBuilders::dateHistogram('d')->field('ts')->getSource(),
         );
     }
+
+    public function testPercentilesWithoutPercentsLeavesTheElasticsearchDefault(): void
+    {
+        self::assertRenders(
+            '{"p":{"percentiles":{"field":"took","tdigest":{"compression":100},"keyed":true}}}',
+            AggregationBuilders::percentiles('p')->field('took')->toArray(),
+        );
+    }
 }

@@ -162,4 +162,14 @@ final class SearchTest extends IntegrationTestCase
         self::assertFalse($bulk['errors']);
         self::assertSame(3, $client->count(new CountRequest($this->index))->getCount());
     }
+
+    public function testPercentilesDefaultToTheElasticsearchSet(): void
+    {
+        $this->seed(['1' => ['took' => 5], '2' => ['took' => 50]], ['took' => ['type' => 'integer']]);
+
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])->search((new SearchRequest($this->index))
+            ->source((new SearchSourceBuilder())->size(0)->aggregation(AggregationBuilders::percentiles('p')->field('took'))));
+
+        self::assertSame(['1.0', '5.0', '25.0', '50.0', '75.0', '95.0', '99.0'], array_keys($response->getAggregations()['p']['values']));
+    }
 }
