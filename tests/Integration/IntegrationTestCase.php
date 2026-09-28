@@ -7,6 +7,7 @@ namespace Zvonchuk\Elastic\Tests\Integration;
 use Elasticsearch\Client as ElasticsearchClient;
 use Elasticsearch\ClientBuilder;
 use PHPUnit\Framework\TestCase;
+use Zvonchuk\Elastic\Client;
 
 /**
  * Runs against a live cluster given by ELASTICSEARCH_URL; skipped otherwise.
@@ -24,6 +25,11 @@ abstract class IntegrationTestCase extends TestCase
             self::markTestSkipped('ELASTICSEARCH_URL is not set');
         }
         self::$elasticsearch = ClientBuilder::create()->setHosts([$url])->build();
+    }
+
+    protected function client(): Client
+    {
+        return new Client(self::$elasticsearch);
     }
 
     protected function setUp(): void

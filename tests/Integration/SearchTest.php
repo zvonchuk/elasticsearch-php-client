@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Zvonchuk\Elastic\Tests\Integration;
 
-use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\CountRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
@@ -28,7 +27,7 @@ final class SearchTest extends IntegrationTestCase
             '2' => ['title' => 'php in action', 'status' => 'draft'],
         ], ['status' => ['type' => 'keyword']]);
 
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
 
         $query = QueryBuilders::boolQuery()
             ->must(QueryBuilders::matchQuery('title', 'action'))
@@ -50,7 +49,7 @@ final class SearchTest extends IntegrationTestCase
 
         $agg = AggregationBuilders::filter('active', QueryBuilders::termQuery('status', 'active'))
             ->subAggregation(AggregationBuilders::avg('avg_price')->field('price'));
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->size(0)->aggregation($agg)));
 
         self::assertSame(2, $response->getAggregations()['active']['doc_count']);
@@ -67,7 +66,7 @@ final class SearchTest extends IntegrationTestCase
 
         $agg = AggregationBuilders::terms('by_tag')->field('tag')
             ->subAggregation(AggregationBuilders::avg('avg_price')->field('price'));
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->size(0)->aggregation($agg)));
 
         $buckets = array_column($response->getAggregations()['by_tag']['buckets'], null, 'key');
@@ -83,7 +82,7 @@ final class SearchTest extends IntegrationTestCase
         ], ['pin' => ['type' => 'geo_point']]);
 
         $sort = SortBuilders::geoDistanceSort('pin', 40.4, 49.86)->order(SortBuilder::ASC)->unit(GeoSort::NAUTICALMILES);
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->sort($sort)));
 
         self::assertSame(['near', 'far'], array_column($response->getHits(), '_id'));
@@ -97,7 +96,7 @@ final class SearchTest extends IntegrationTestCase
         ], ['pin' => ['type' => 'geo_point']]);
 
         $query = QueryBuilders::geoDistanceQuery('pin')->distance('5km')->point(40.4, 49.86);
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         self::assertSame(['near'], array_column($response->getHits(), '_id'));
@@ -111,7 +110,7 @@ final class SearchTest extends IntegrationTestCase
         ], ['status' => ['type' => 'keyword']]);
 
         $query = QueryBuilders::boolQuery()->mustNot(QueryBuilders::termQuery('status', 'deleted'));
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         self::assertSame(['1'], array_column($response->getHits(), '_id'));
@@ -128,7 +127,7 @@ final class SearchTest extends IntegrationTestCase
         $query = QueryBuilders::boolQuery()
             ->filter(QueryBuilders::rangeQuery('price')->gte(500)->lte(1000.0))
             ->filter(QueryBuilders::rangeQuery('created_at')->gte(new \DateTimeImmutable('2026-01-01T00:00:00+04:00')));
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         self::assertSame(['mid'], array_column($response->getHits(), '_id'));
@@ -141,7 +140,7 @@ final class SearchTest extends IntegrationTestCase
             'off' => ['active' => false],
         ], ['active' => ['type' => 'boolean']]);
 
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
         $find = fn (bool $value) => array_column($client->search((new SearchRequest($this->index))->source(
             (new SearchSourceBuilder())->query(QueryBuilders::termQuery('active', $value)),
         ))->getHits(), '_id');
@@ -153,7 +152,7 @@ final class SearchTest extends IntegrationTestCase
     public function testDocumentsWithGeneratedIdsAndCountWithoutQuery(): void
     {
         $this->seed([]);
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
 
         $single = $client->index((new IndexRequest($this->index))->source(['title' => 'one']));
         $bulk = $client->bulk((new BulkRequest())
@@ -170,7 +169,7 @@ final class SearchTest extends IntegrationTestCase
     {
         $this->seed(['1' => ['took' => 5], '2' => ['took' => 50]], ['took' => ['type' => 'integer']]);
 
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])->search((new SearchRequest($this->index))
+        $response = $this->client()->search((new SearchRequest($this->index))
             ->source((new SearchSourceBuilder())->size(0)->aggregation(AggregationBuilders::percentiles('p')->field('took'))));
 
         self::assertSame(['1.0', '5.0', '25.0', '50.0', '75.0', '95.0', '99.0'], array_keys($response->getAggregations()['p']['values']));
@@ -201,7 +200,7 @@ final class SearchTest extends IntegrationTestCase
             $bool->should($query->queryName($name)->boost(2));
         }
 
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($bool)));
 
         $matched = $response->getHits()[0]['matched_queries'];
@@ -214,7 +213,7 @@ final class SearchTest extends IntegrationTestCase
     public function testBoostChangesTheOrder(): void
     {
         $this->seed(['a' => ['tag' => 'a'], 'b' => ['tag' => 'b']], ['tag' => ['type' => 'keyword']]);
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
         $order = fn (float $boostA, float $boostB) => array_column($client->search((new SearchRequest($this->index))->source(
             (new SearchSourceBuilder())->query(QueryBuilders::boolQuery()
                 ->should(QueryBuilders::termQuery('tag', 'a')->boost($boostA))
@@ -236,7 +235,7 @@ final class SearchTest extends IntegrationTestCase
             ->should(QueryBuilders::termQuery('a', 'x'))
             ->should(QueryBuilders::termQuery('b', 'y'))
             ->minimumShouldMatch(2);
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         self::assertSame(['both'], array_column($response->getHits(), '_id'));
@@ -245,7 +244,7 @@ final class SearchTest extends IntegrationTestCase
     public function testFuzzyMatchPrefixLength(): void
     {
         $this->seed(['1' => ['name' => 'huseynov']], ['name' => ['type' => 'text']]);
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
         $hits = fn (int $prefixLength) => count($client->search((new SearchRequest($this->index))->source(
             (new SearchSourceBuilder())->query(QueryBuilders::matchQuery('name', 'guseynov')->fuzziness(1)->prefixLength($prefixLength)),
         ))->getHits());
@@ -263,7 +262,7 @@ final class SearchTest extends IntegrationTestCase
         ]);
 
         $query = QueryBuilders::multiMatchQuery('iphone', ['name^3', 'description'])->type(MultiMatchQueryBuilder::BEST_FIELDS);
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         self::assertSame(['in_name', 'in_description'], array_column($response->getHits(), '_id'));
@@ -272,7 +271,7 @@ final class SearchTest extends IntegrationTestCase
     public function testDisMaxAndConstantScore(): void
     {
         $this->seed(['1' => ['tag' => 'a', 'year' => '1950']], ['tag' => ['type' => 'keyword'], 'year' => ['type' => 'keyword']]);
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
         $score = fn ($query) => $client->search((new SearchRequest($this->index))->source(
             (new SearchSourceBuilder())->query($query),
         ))->getHits()[0]['_score'];
@@ -291,7 +290,7 @@ final class SearchTest extends IntegrationTestCase
             '1' => ['code' => 'AZE1234567', 'name' => 'huseynov'],
             '2' => ['code' => 'GEO7654321', 'name' => 'aliyev'],
         ], ['code' => ['type' => 'keyword'], 'name' => ['type' => 'keyword']]);
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
         $ids = fn ($query) => array_column($client->search((new SearchRequest($this->index))->source(
             (new SearchSourceBuilder())->query($query),
         ))->getHits(), '_id');
@@ -314,7 +313,7 @@ final class SearchTest extends IntegrationTestCase
         $query = QueryBuilders::nestedQuery('documents', QueryBuilders::boolQuery()
             ->must(QueryBuilders::termQuery('documents.type', 'passport'))
             ->must(QueryBuilders::termQuery('documents.number', 'A1')));
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         self::assertSame(['match'], array_column($response->getHits(), '_id'));
@@ -327,7 +326,7 @@ final class SearchTest extends IntegrationTestCase
             ->should(QueryBuilders::constantScoreQuery(QueryBuilders::termQuery('tag', 'a'))->boost(5))
             ->should(QueryBuilders::constantScoreQuery(QueryBuilders::termQuery('tag', 'b'))->boost(1));
 
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])->search((new SearchRequest($this->index))
+        $response = $this->client()->search((new SearchRequest($this->index))
             ->source((new SearchSourceBuilder())->query($query)->timeout('2s')->trackTotalHits(false)->minScore(2.0)));
 
         self::assertSame(['strong'], array_column($response->getHits(), '_id'));
@@ -341,7 +340,7 @@ final class SearchTest extends IntegrationTestCase
             ->should(QueryBuilders::termQuery('tag', 'a')->queryName('tag'))
             ->should(QueryBuilders::rangeQuery('n')->gte(10)->queryName('big'));
 
-        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
 
         $hit = $response->hits()[0];
@@ -358,7 +357,7 @@ final class SearchTest extends IntegrationTestCase
     {
         $this->seed(['1' => ['full_name' => 'Jahangir Asgarov', 'birth_year' => 1950]], ['birth_year' => ['type' => 'integer']]);
 
-        $people = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+        $people = $this->client()
             ->search(new SearchRequest($this->index))
             ->documents(Person::class);
 
@@ -370,7 +369,7 @@ final class SearchTest extends IntegrationTestCase
         $this->seed(['1' => ['tag' => 'a'], '2' => ['tag' => 'b']], ['tag' => ['type' => 'keyword']]);
         $search = fn (string $index, string $tag) => (new SearchRequest($index))
             ->source((new SearchSourceBuilder())->query(QueryBuilders::termQuery('tag', $tag)));
-        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $client = $this->client();
 
         $response = $client->msearch((new MultiSearchRequest())->add($search($this->index, 'a'))->add($search($this->index, 'b')));
         self::assertSame(['1'], array_column($response->get(0)->getHits(), '_id'));

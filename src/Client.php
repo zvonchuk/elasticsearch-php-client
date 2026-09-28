@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zvonchuk\Elastic;
 
+use Elasticsearch\Client as ElasticsearchClient;
 use Elasticsearch\ClientBuilder;
 use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\CountRequest;
@@ -21,23 +22,29 @@ use Zvonchuk\Elastic\Search\SearchResponse;
 
 final class Client
 {
-    private static ?Client $instance = null;
-    private \Elasticsearch\Client $elastic;
-
-    /** @param list<string|array<string, mixed>> $hosts */
-    private function __construct(array $hosts)
+    /**
+     * @param ElasticsearchClient $elastic an official client you configured (hosts, auth, TLS, retries, logger)
+     */
+    public function __construct(private readonly ElasticsearchClient $elastic)
     {
-        $this->elastic = ClientBuilder::create()->setHosts($hosts)->build();
     }
 
-    /** @param list<string|array<string, mixed>> $hosts */
-    public static function getInstance(array $hosts): Client
+    /**
+     * Shortcut for the simple case: an official client for these hosts with default settings.
+     *
+     * @param list<string|array<string, mixed>> $hosts e.g. ['https://user:pass@es.example.com:9243']
+     */
+    public static function create(array $hosts): self
     {
-        if (self::$instance === null) {
-            self::$instance = new Client($hosts);
-        }
+        return new self(ClientBuilder::create()->setHosts($hosts)->build());
+    }
 
-        return self::$instance;
+    /**
+     * The wrapped official client, for APIs this package does not cover.
+     */
+    public function elasticsearch(): ElasticsearchClient
+    {
+        return $this->elastic;
     }
 
     public function count(CountRequest $request): CountResponse
