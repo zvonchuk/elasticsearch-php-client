@@ -331,4 +331,24 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame(['strong'], array_column($response->getHits(), '_id'));
         self::assertNull($response->getTotal());
     }
+
+    public function testTypedHitsCarryMatchedQueries(): void
+    {
+        $this->seed(['1' => ['tag' => 'a', 'n' => 5]], ['tag' => ['type' => 'keyword'], 'n' => ['type' => 'integer']]);
+        $query = QueryBuilders::boolQuery()
+            ->should(QueryBuilders::termQuery('tag', 'a')->queryName('tag'))
+            ->should(QueryBuilders::rangeQuery('n')->gte(10)->queryName('big'));
+
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        $hit = $response->hits()[0];
+        self::assertSame('1', $hit->id);
+        self::assertSame($this->index, $hit->index);
+        self::assertSame(['tag' => 'a', 'n' => 5], $hit->source);
+        self::assertTrue($hit->matched('tag'));
+        self::assertFalse($hit->matched('big'));
+        self::assertFalse($response->timedOut());
+        self::assertIsInt($response->took());
+    }
 }
