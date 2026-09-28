@@ -157,3 +157,21 @@ foreach ($aggs['orders_over_time']['buckets'] as $bucket) {
     echo "- $month: $count orders\n";
 }
 ```
+
+## Global Aggregation
+
+One bucket with every document of the index, whatever the query; sub-aggregations run over all of them:
+
+```php
+<?php
+use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
+
+$all = AggregationBuilders::global('all_products')
+    ->subAggregation(AggregationBuilders::avg('avg_price')->field('price'));
+```
+
+## Notes
+
+- `percentiles()` without `percents()` returns the Elasticsearch default set (1, 5, 25, 50, 75, 95, 99).
+- Every bucket aggregation (terms, histogram, date_histogram, geohash_grid, filter, global) renders its
+  sub-aggregations.

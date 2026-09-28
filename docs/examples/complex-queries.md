@@ -14,7 +14,7 @@ use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // User parameters
 $searchTerm = 'wireless headphones';
@@ -143,7 +143,7 @@ use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // User input and context
 $query = 'lightweight laptop';

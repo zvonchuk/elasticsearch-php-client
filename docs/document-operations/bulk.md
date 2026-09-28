@@ -14,7 +14,7 @@ use Zvonchuk\Elastic\Core\IndexRequest;
 use Zvonchuk\Elastic\Core\DeleteRequest;
 use Zvonchuk\Elastic\Core\UpdateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Create a bulk request
 $bulkRequest = new BulkRequest();
@@ -94,7 +94,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $products = [
     [
@@ -160,7 +160,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\UpdateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $updates = [
     '1' => ['on_sale' => true, 'discount' => 10],
@@ -191,7 +191,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $productIdsToDelete = ['101', '102', '103', '104'];
 

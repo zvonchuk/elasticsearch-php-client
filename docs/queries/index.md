@@ -9,6 +9,8 @@ Elasticsearch PHP Client provides a fluent API for building Elasticsearch querie
 - [Match Queries](match-queries.html) - Text analysis for full-text search
 - [Boolean Queries](boolean-queries.html) - Combining multiple queries with logic
 - [Geo Queries](geo-queries.html) - Location-based search
+- [Compound Queries](compound-queries.html) - dis_max, constant_score and nested
+- [Boost and Query Names](common-options.html) - options every query accepts
 
 ## Query Builder Pattern
 
@@ -22,7 +24,10 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 $query = QueryBuilders::matchQuery('title', 'elasticsearch');
 
 // Many query types support additional options
-$query->operator('AND')->fuzziness('AUTO');
+$query->operator('and')->fuzziness('AUTO');
+
+// Every query can be boosted and named
+$query->boost(2)->queryName('title');
 ```
 
 Browse the sections to learn more about each query type.

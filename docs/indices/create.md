@@ -11,7 +11,7 @@ To create a new index with default settings:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $createRequest = new CreateRequest('products');
@@ -33,7 +33,7 @@ You can specify various settings when creating an index:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $createRequest = new CreateRequest('products');
@@ -55,7 +55,7 @@ Here's an example with more advanced settings including analyzers:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $createRequest = new CreateRequest('blog_posts');
@@ -93,7 +93,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\IndexRequest;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $indexName = 'products';
@@ -131,7 +131,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\IndexRequest;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $indexConfigs = [

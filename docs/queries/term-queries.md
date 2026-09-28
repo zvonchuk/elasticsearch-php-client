@@ -98,3 +98,27 @@ $boolQuery = QueryBuilders::boolQuery()
     ->must(QueryBuilders::termQuery('status', 'active'))
     ->filter(QueryBuilders::rangeQuery('price')->lt('100.00'));
 ```
+
+## Value Types
+
+`termQuery()` keeps the value's type: `termQuery('active', true)` sends `true`, `termQuery('year', 1950)` sends
+`1950`. Range bounds accept numbers, strings and `DateTimeInterface` (sent as ISO 8601):
+
+```php
+<?php
+use Zvonchuk\Elastic\Query\QueryBuilders;
+
+$query = QueryBuilders::rangeQuery('created_at')->gte(new \DateTimeImmutable('-7 days'))->lt(new \DateTimeImmutable());
+```
+
+## Prefix, Wildcard, Ids and Fuzzy Queries
+
+```php
+<?php
+use Zvonchuk\Elastic\Query\QueryBuilders;
+
+QueryBuilders::prefixQuery('code', 'aze')->caseInsensitive();
+QueryBuilders::wildcardQuery('passport', 'AZE*67');           // "*" any characters, "?" one; avoid leading "*"
+QueryBuilders::idsQuery(['17', '42']);
+QueryBuilders::fuzzyQuery('surname', 'guseynov')->fuzziness(1)->prefixLength(0);
+```

@@ -12,8 +12,8 @@ composer require zvonchuk/elasticsearch-php-client
 
 ## Requirements
 
-- PHP 7.1 or higher
-- Elasticsearch 7.x
+- PHP 8.1 or higher
+- Elasticsearch 7.x (the package uses the official `elasticsearch/elasticsearch` 7.x client)
 - Composer for dependency management
 
 ## Basic Setup
@@ -27,10 +27,10 @@ require 'vendor/autoload.php';
 use Zvonchuk\Elastic\Client;
 
 // Connect to a single Elasticsearch node
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Connect to multiple nodes
-$client = Client::getInstance([
+$client = Client::create([
     'elasticsearch1:9200',
     'elasticsearch2:9200',
     'elasticsearch3:9200'
@@ -59,13 +59,10 @@ $request->source($searchSource);
 $response = $client->search($request);
 
 // Process the search results
-$hits = $response->getHits();
-$total = $response->getTotal();
-
-echo "Found $total documents\n";
-foreach ($hits as $hit) {
-    echo "Document ID: {$hit['_id']}, Score: {$hit['_score']}\n";
-    print_r($hit['_source']);
+echo "Found {$response->getTotal()} documents\n";
+foreach ($response->hits() as $hit) {
+    echo "Document ID: {$hit->id}, Score: {$hit->score}\n";
+    print_r($hit->source);
 }
 ```
 

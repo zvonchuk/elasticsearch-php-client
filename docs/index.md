@@ -9,6 +9,7 @@ Welcome to the elasticsearch-php-client documentation. This high-level client fo
 
 ## Core Concepts
 
+- [Searching](search/) - search options, [responses](search/responses.html), [multi search](search/multi-search.html)
 - [Queries](queries/)
 - [Aggregations](aggregations/)
 - [Document Operations](document-operations/)

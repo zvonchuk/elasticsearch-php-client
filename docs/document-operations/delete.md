@@ -11,7 +11,7 @@ To delete a document by its ID:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new DeleteRequest('products');
 $request->id('1');
@@ -61,7 +61,7 @@ When trying to delete a document that doesn't exist, Elasticsearch returns a "no
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new DeleteRequest('products');
 $request->id('non_existent_id');
@@ -83,7 +83,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\ExistsRequest;
 use Zvonchuk\Elastic\Core\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $productId = '1';
 
 // 1. Check if the document exists
@@ -116,7 +116,7 @@ Here's how to delete multiple documents in a loop:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $productIds = ['1', '2', '3'];
 $deletedCount = 0;

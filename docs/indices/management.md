@@ -11,7 +11,7 @@ To check if an index exists:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\IndexRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $indexRequest = new IndexRequest('products');
@@ -33,7 +33,7 @@ To delete an index:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $deleteRequest = new DeleteRequest('products');
@@ -55,7 +55,7 @@ Refreshing makes all operations performed on an index since the last refresh ava
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\RefreshRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $refreshRequest = new RefreshRequest('products');
@@ -78,7 +78,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\IndexRequest;
 use Zvonchuk\Elastic\Indices\DeleteRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $indexName = 'products';
@@ -114,7 +114,7 @@ use Zvonchuk\Elastic\Indices\DeleteRequest;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 use Zvonchuk\Elastic\Indices\PutMappingsRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $indexName = 'products';
@@ -181,8 +181,9 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\IndexRequest;
 use Zvonchuk\Elastic\Indices\DeleteRequest;
 use Zvonchuk\Elastic\Indices\CreateRequest;
+use Zvonchuk\Elastic\Indices\RefreshRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 // List of indices to manage

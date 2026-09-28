@@ -81,7 +81,7 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilder;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Create a search query
 $searchSource = new SearchSourceBuilder();

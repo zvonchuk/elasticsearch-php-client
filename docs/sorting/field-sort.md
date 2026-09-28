@@ -75,7 +75,7 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilder;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Create a search for electronics products
 $boolQuery = QueryBuilders::boolQuery()
@@ -120,7 +120,7 @@ use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Page parameters
 $page = 2;  // Page number (1-based)
@@ -164,7 +164,7 @@ use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Create search
 $searchSource = new SearchSourceBuilder();

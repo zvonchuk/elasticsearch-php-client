@@ -11,7 +11,7 @@ To get a document by its ID:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\GetRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new GetRequest('products');
 $request->id('1');
@@ -46,7 +46,7 @@ To check if a document exists without retrieving its content:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\ExistsRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new ExistsRequest('products');
 $request->id('1');
@@ -69,7 +69,7 @@ When getting a document that doesn't exist, Elasticsearch returns a "not found" 
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\GetRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new GetRequest('products');
 $request->id('non_existent_id');
@@ -93,7 +93,7 @@ Here's how to process a retrieved document:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\GetRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new GetRequest('products');
 $request->id('1');
@@ -132,7 +132,7 @@ Here's how to retrieve multiple documents in a loop:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\GetRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $productIds = ['1', '2', '3'];
 $foundProducts = [];

@@ -11,7 +11,7 @@ To index a document with a specific ID:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\IndexRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new IndexRequest('products');
 $request->id('1');
@@ -119,7 +119,7 @@ Here's how to index multiple documents in a loop:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\IndexRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $products = [
     [

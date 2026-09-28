@@ -1,33 +1,62 @@
 # Client Configuration
 
-The `Client` class is the main entry point for interacting with Elasticsearch. This page explains how to set up and configure the client.
+`Zvonchuk\Elastic\Client` wraps the official `elasticsearch/elasticsearch` 7.x client. You build and configure
+the official client (hosts, credentials, TLS, retries, logging) and hand it over; the wrapper adds the typed
+request/response API on top.
 
-## Singleton Pattern
+## Using a client you configured
 
-The client uses a singleton pattern for connection management:
+```php
+<?php
+use Elasticsearch\ClientBuilder;
+use Zvonchuk\Elastic\Client;
+
+$elasticsearch = ClientBuilder::create()
+    ->setHosts(['https://es.example.com:9243'])
+    ->setBasicAuthentication('user', 'secret')
+    ->setRetries(1)
+    ->build();
+
+$client = new Client($elasticsearch);
+```
+
+This is the recommended setup in applications that already have a dependency container: register the official
+client once and inject `Client` wherever searches are made. In tests, pass a mock of `\Elasticsearch\Client`.
+
+## Quick setup from a host list
+
+For scripts and simple cases `Client::create()` builds the official client with default settings:
 
 ```php
 <?php
 use Zvonchuk\Elastic\Client;
 
-// Get client instance with a host array
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create([
+    'elasticsearch1:9200',                      // http by default
+    'https://user:password@elasticsearch2:9243', // credentials in the URL
+]);
 ```
 
-## Configuration Options
-
-When connecting to Elasticsearch, you can specify multiple hosts for load balancing and failover:
+Every call creates an independent client, so two clusters can be used side by side:
 
 ```php
 <?php
-$hosts = [
-    'elasticsearch1:9200',  // Default protocol is http
-    'http://elasticsearch2:9200',
-    'https://user:password@elasticsearch3:9200'  // With authentication
-];
+use Zvonchuk\Elastic\Client;
 
-$client = Client::getInstance($hosts);
+$primary = Client::create(['http://primary:9200']);
+$archive = Client::create(['http://archive:9200']);
 ```
+
+## Reaching the official client
+
+For APIs this package does not wrap, use the official client directly:
+
+```php
+<?php
+$health = $client->elasticsearch()->cluster()->health();
+```
+
+> Upgrading from 0.x: `Client::getInstance()` is gone — see [UPGRADE-1.0](https://github.com/zvonchuk/elasticsearch-php-client/blob/master/UPGRADE-1.0.md).
 
 ## Available Operations
 
@@ -42,7 +71,8 @@ Once you have the client instance, you can perform various operations:
 - `bulk()` - Perform bulk operations
 
 ### Search Operations
-- `search()` - Search for documents
+- `search()` - Search for documents ([responses](search/responses.html))
+- `msearch()` - Several searches in one round trip ([multi search](search/multi-search.html))
 - `count()` - Count documents matching a query
 
 ### Index Operations
@@ -60,6 +90,7 @@ $indices = $client->indices();
 // - refresh()
 // - getMapping()
 // - putMapping()
+// - updateAliases(), existsAlias(), indicesForAlias(), swapAlias()
 ```
 
 ## Example: Client with Basic Operations
@@ -71,7 +102,7 @@ use Zvonchuk\Elastic\Core\IndexRequest;
 use Zvonchuk\Elastic\Core\GetRequest;
 
 // Initialize client
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Index a document
 $indexRequest = new IndexRequest('products');

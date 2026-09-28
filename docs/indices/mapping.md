@@ -11,7 +11,7 @@ To define mappings for an index:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\PutMappingsRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $mappingsRequest = new PutMappingsRequest('products');
@@ -61,7 +61,7 @@ To retrieve the mappings for an index:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Indices\GetMappingsRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $getMappingsRequest = new GetMappingsRequest('products');
@@ -190,7 +190,7 @@ use Zvonchuk\Elastic\Indices\IndexRequest;
 use Zvonchuk\Elastic\Indices\CreateRequest;
 use Zvonchuk\Elastic\Indices\PutMappingsRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 $indexName = 'products';

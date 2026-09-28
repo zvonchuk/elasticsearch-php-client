@@ -116,3 +116,48 @@ $request = new SearchRequest('products');
 $request->source($searchSource);
 $response = $client->search($request);
 ```
+
+## More Match Options
+
+```php
+<?php
+use Zvonchuk\Elastic\Query\MatchQueryBuilder;
+use Zvonchuk\Elastic\Query\QueryBuilders;
+
+$query = QueryBuilders::matchQuery('name', 'guseynov')
+    ->operator(MatchQueryBuilder::OPERATOR_AND) // "and" / "or"; anything else is rejected
+    ->fuzziness(1)          // 0, 1, 2 or "AUTO"
+    ->prefixLength(0)       // allow a typo in the first letter too
+    ->maxExpansions(50)     // cap the number of fuzzy variants
+    ->minimumShouldMatch('75%')
+    ->analyzer('standard');
+```
+
+The value may be a string, number or boolean; it is sent with its type.
+
+## Multi Match Query
+
+Searches one text across several fields, optionally boosted per field:
+
+```php
+<?php
+use Zvonchuk\Elastic\Query\MultiMatchQueryBuilder;
+use Zvonchuk\Elastic\Query\QueryBuilders;
+
+$query = QueryBuilders::multiMatchQuery('iphone 15', ['name^3', 'description'])
+    ->type(MultiMatchQueryBuilder::BEST_FIELDS) // best_fields, most_fields, cross_fields, phrase, phrase_prefix, bool_prefix
+    ->operator('and')
+    ->tieBreaker(0.3);
+```
+
+```json
+{
+  "multi_match": {
+    "query": "iphone 15",
+    "fields": ["name^3", "description"],
+    "type": "best_fields",
+    "operator": "and",
+    "tie_breaker": 0.3
+  }
+}
+```

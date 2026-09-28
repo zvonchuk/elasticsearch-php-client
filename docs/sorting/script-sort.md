@@ -54,7 +54,7 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 use Zvonchuk\Elastic\Search\Sort\ScriptSort;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Create a search for electronics products
 $searchSource = new SearchSourceBuilder();
@@ -99,7 +99,7 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 use Zvonchuk\Elastic\Search\Sort\ScriptSort;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Create a search for products matching a query
 $searchSource = new SearchSourceBuilder();

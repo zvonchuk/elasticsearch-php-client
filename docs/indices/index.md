@@ -7,6 +7,7 @@ Elasticsearch indices are collections of documents. This section covers operatio
 - [Creating Indices](create.html) - Creating new indices with settings
 - [Mappings](mapping.html) - Defining field types and properties
 - [Index Management](management.html) - Other operations like delete, refresh, and exists
+- [Aliases](aliases.html) - Versioned indices behind an alias, reindexing without downtime
 
 ## Indices API Structure
 
@@ -16,7 +17,7 @@ All indices operations in the elasticsearch-php-client are accessed through the 
 <?php
 use Zvonchuk\Elastic\Client;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Access the indices API
 $indices = $client->indices();
@@ -42,7 +43,7 @@ use Zvonchuk\Elastic\Indices\CreateRequest;
 use Zvonchuk\Elastic\Indices\PutMappingsRequest;
 use Zvonchuk\Elastic\Indices\RefreshRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $indices = $client->indices();
 
 // Step 1: Check if index exists

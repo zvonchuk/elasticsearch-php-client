@@ -15,7 +15,7 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\Bucket\DateHistogramBuilder;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Filter parameters
 $startDate = '2023-01-01';
@@ -154,7 +154,7 @@ use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // Filter parameters
 $searchTerm = 'smartphone';

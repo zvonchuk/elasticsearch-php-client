@@ -120,3 +120,22 @@ $request = new SearchRequest('products');
 $request->source($searchSource);
 $response = $client->search($request);
 ```
+
+## Minimum Should Match
+
+With `minimumShouldMatch()` should clauses become a requirement: a number, a negative number or a percentage.
+
+```php
+<?php
+use Zvonchuk\Elastic\Query\QueryBuilders;
+
+$query = QueryBuilders::boolQuery()
+    ->must(QueryBuilders::termQuery('status', 'active'))
+    ->should(QueryBuilders::termQuery('tag', 'php'))
+    ->should(QueryBuilders::termQuery('tag', 'elasticsearch'))
+    ->should(QueryBuilders::termQuery('tag', 'search'))
+    ->minimumShouldMatch(2); // at least two of the three tags
+```
+
+`mustNot()` clauses are sent under `must_not`. Clauses are rendered when the request is built, so a query can be
+configured further after it was added to a bool query.

@@ -11,7 +11,7 @@ To update a document by its ID:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\UpdateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $request = new UpdateRequest('products');
 $request->id('1');
@@ -102,7 +102,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\GetRequest;
 use Zvonchuk\Elastic\Core\UpdateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 $productId = '1';
 $maxRetries = 3;
 $retries = 0;
@@ -161,7 +161,7 @@ Here's how to update multiple documents with a common field:
 use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\UpdateRequest;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 $productIds = ['1', '2', '3'];
 $updatedCount = 0;

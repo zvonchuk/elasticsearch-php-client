@@ -124,3 +124,17 @@ echo "Rating stats: Min {$ratingStats['min']}, Max {$ratingStats['max']}, Avg {$
 $extendedStats = $aggs['extended_price_stats'];
 echo "Price standard deviation: {$extendedStats['std_deviation']}\n";
 ```
+
+## Sum Aggregation
+
+```php
+<?php
+use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
+
+$sum = AggregationBuilders::sum('total_sales')->field('total_amount');
+```
+
+## Metrics Have No Sub-Aggregations
+
+Elasticsearch does not accept sub-aggregations under a metric; `subAggregation()` on avg, sum, stats,
+extended_stats, geo_centroid or percentiles throws a `LogicException`. Nest under a bucket aggregation instead.

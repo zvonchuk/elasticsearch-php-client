@@ -10,18 +10,18 @@ Finds documents within a certain distance from a point:
 <?php
 use Zvonchuk\Elastic\Query\QueryBuilders;
 
-$query = QueryBuilders::GeoDistanceQuery('location')
+$query = QueryBuilders::geoDistanceQuery('location')
     ->point(40.7128, -74.0060)  // latitude, longitude
     ->distance('10km');
 ```
 
-This generates:
+This generates (the point goes under the field you passed):
 
 ```json
 {
   "geo_distance": {
     "distance": "10km",
-    "location": "40.7128,-74.0060"
+    "location": { "lat": 40.7128, "lon": -74.006 }
   }
 }
 ```
@@ -35,34 +35,33 @@ Finds documents with geo-points within a bounding box:
 use Zvonchuk\Elastic\Query\QueryBuilders;
 
 $query = QueryBuilders::geoBoundingBoxQuery('location')
-    ->topLeft(42.0, -72.0)
-    ->bottomRight(40.0, -74.0);
+    ->topLeft(['lat' => 42.0, 'lon' => -74.0])
+    ->bottomRight(['lat' => 40.0, 'lon' => -72.0]);
 ```
 
-Alternatively, you can use the bounding method:
-
-```php
-<?php
-use Zvonchuk\Elastic\Query\QueryBuilders;
-
-$query = QueryBuilders::geoBoundingBoxQuery('location')
-    ->bounding([
-        'top_left' => [42.0, -72.0],
-        'bottom_right' => [40.0, -74.0]
-    ]);
-```
-
-This generates:
+Each corner is one point: `['lat' => .., 'lon' => ..]`, a `"lat,lon"` string or a geohash. This generates:
 
 ```json
 {
   "geo_bounding_box": {
     "location": {
-      "top_left": [42.0, -72.0],
-      "bottom_right": [40.0, -74.0]
+      "top_left": { "lat": 42.0, "lon": -74.0 },
+      "bottom_right": { "lat": 40.0, "lon": -72.0 }
     }
   }
 }
+```
+
+`bounding()` returns the same query as a plain array, built from the recognised corner keys of the array you pass:
+
+```php
+<?php
+use Zvonchuk\Elastic\Query\QueryBuilders;
+
+$array = QueryBuilders::geoBoundingBoxQuery('location')->bounding([
+    'top_left' => ['lat' => 42.0, 'lon' => -74.0],
+    'bottom_right' => ['lat' => 40.0, 'lon' => -72.0],
+]);
 ```
 
 ## Combining Geo Queries with Other Query Types
@@ -76,7 +75,7 @@ use Zvonchuk\Elastic\Query\QueryBuilders;
 $boolQuery = QueryBuilders::boolQuery()
     ->must(QueryBuilders::matchQuery('category', 'restaurant'))
     ->filter(
-        QueryBuilders::GeoDistanceQuery('location')
+        QueryBuilders::geoDistanceQuery('location')
             ->point(40.7128, -74.0060)
             ->distance('5km')
     );
@@ -97,7 +96,7 @@ use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 $boolQuery = QueryBuilders::boolQuery()
     ->must(QueryBuilders::matchQuery('type', 'restaurant'))
     ->filter(
-        QueryBuilders::GeoDistanceQuery('location')
+        QueryBuilders::geoDistanceQuery('location')
             ->point(40.7128, -74.0060)  // New York City coordinates
             ->distance('5km')
     );

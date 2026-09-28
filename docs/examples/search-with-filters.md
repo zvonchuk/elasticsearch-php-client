@@ -12,7 +12,7 @@ use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // User input parameters
 $searchTerm = 'laptop';
@@ -129,7 +129,7 @@ use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 
-$client = Client::getInstance(['localhost:9200']);
+$client = Client::create(['localhost:9200']);
 
 // User input parameters
 $searchTerm = 'laptop';
