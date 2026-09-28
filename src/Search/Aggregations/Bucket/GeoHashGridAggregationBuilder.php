@@ -8,7 +8,6 @@ class GeoHashGridAggregationBuilder extends AggregationBuilder
 {
     private int $_precision;
     private string $field;
-    private ?array $_agg = null;
 
     public function __construct(string $name)
     {
@@ -17,20 +16,14 @@ class GeoHashGridAggregationBuilder extends AggregationBuilder
 
     public function getSource()
     {
-        $return = [
+        return $this->withSubAggregations([
             $this->name => [
                 'geohash_grid' => [
                     'field' => $this->field,
                     'precision' => $this->_precision
                 ]
             ]
-        ];
-
-        if ($this->_agg) {
-            $return[$this->name]['aggregations'] = $this->_agg;
-        }
-
-        return $return;
+        ]);
     }
 
     public function field(string $field): self
@@ -44,16 +37,4 @@ class GeoHashGridAggregationBuilder extends AggregationBuilder
         $this->_precision = $precision;
         return $this;
     }
-
-    public function subAggregation(AggregationBuilder $agg): AggregationBuilder
-    {
-        if (is_array($this->_agg)) {
-            $this->_agg = array_merge($this->_agg, $agg->getSource());
-        } else {
-            $this->_agg = $agg->getSource();
-        }
-
-        return $this;
-    }
-
 }

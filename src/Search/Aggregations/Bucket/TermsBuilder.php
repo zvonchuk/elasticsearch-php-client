@@ -16,14 +16,14 @@ class TermsBuilder extends AggregationBuilder
 
     public function getSource()
     {
-        return [
+        return $this->withSubAggregations([
             $this->name => [
                 'terms' => [
                     'field' => $this->field,
                     'size' => $this->_size
                 ]
             ]
-        ];
+        ]);
     }
 
     public function size(int $size): TermsBuilder

@@ -17,16 +17,10 @@ class FilterBuilder extends AggregationBuilder
 
     public function getSource()
     {
-        $return = [
+        return $this->withSubAggregations([
             $this->name => [
                 'filter' => $this->filter->getSource(),
             ]
-        ];
-
-        if ($this->aggregations) {
-            $return[$this->name]['aggregations'] = $this->aggregations;
-        }
-
-        return $return;
+        ]);
     }
 }

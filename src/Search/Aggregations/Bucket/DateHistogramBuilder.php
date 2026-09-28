@@ -25,7 +25,7 @@ class DateHistogramBuilder extends AggregationBuilder
 
     public function getSource()
     {
-        $return = [
+        return $this->withSubAggregations([
             $this->name => [
                 'date_histogram' => [
                     'field' => $this->field,
@@ -33,12 +33,7 @@ class DateHistogramBuilder extends AggregationBuilder
                     'min_doc_count' => $this->_minDocCount
                 ],
             ],
-        ];
-        if ($this->aggregations) {
-            $return[$this->name]['aggregations'] = $this->aggregations;
-        }
-
-        return $return;
+        ]);
     }
 
     public function minDocCount($minDocCount): self

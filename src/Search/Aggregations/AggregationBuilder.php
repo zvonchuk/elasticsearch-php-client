@@ -18,4 +18,16 @@ abstract class AggregationBuilder
 
         return $this;
     }
+
+    /**
+     * Adds the sub-aggregations, if any, next to the aggregation body.
+     */
+    protected function withSubAggregations(array $source): array
+    {
+        if ($this->aggregations) {
+            $source[$this->name]['aggregations'] = $this->aggregations;
+        }
+
+        return $source;
+    }
 }

@@ -2,9 +2,9 @@
 
 namespace Zvonchuk\Elastic\Search\Aggregations\Bucket;
 
-use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
+use Zvonchuk\Elastic\Search\Aggregations\MetricAggregationBuilder;
 
-class PercentilesBuilder extends AggregationBuilder
+class PercentilesBuilder extends MetricAggregationBuilder
 {
     private string $field;
     private $_percents = 0;

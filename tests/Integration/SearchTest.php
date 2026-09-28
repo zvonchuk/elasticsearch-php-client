@@ -48,4 +48,22 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame(2, $response->getAggregations()['active']['doc_count']);
         self::assertEqualsWithDelta(20.0, $response->getAggregations()['active']['avg_price']['value'], 0.001);
     }
+
+    public function testTermsKeepsSubAggregationsOnTheCluster(): void
+    {
+        $this->seed([
+            '1' => ['tag' => 'a', 'price' => 10],
+            '2' => ['tag' => 'a', 'price' => 20],
+            '3' => ['tag' => 'b', 'price' => 50],
+        ], ['tag' => ['type' => 'keyword'], 'price' => ['type' => 'integer']]);
+
+        $agg = AggregationBuilders::terms('by_tag')->field('tag')
+            ->subAggregation(AggregationBuilders::avg('avg_price')->field('price'));
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->size(0)->aggregation($agg)));
+
+        $buckets = array_column($response->getAggregations()['by_tag']['buckets'], null, 'key');
+        self::assertEqualsWithDelta(15.0, $buckets['a']['avg_price']['value'], 0.001);
+        self::assertEqualsWithDelta(50.0, $buckets['b']['avg_price']['value'], 0.001);
+    }
 }

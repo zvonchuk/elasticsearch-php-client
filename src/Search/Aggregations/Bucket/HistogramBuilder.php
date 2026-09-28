@@ -16,7 +16,7 @@ class HistogramBuilder extends AggregationBuilder
 
     public function getSource()
     {
-        return [
+        return $this->withSubAggregations([
             $this->name => [
                 'histogram' => [
                     'field' => $this->field,
@@ -24,7 +24,7 @@ class HistogramBuilder extends AggregationBuilder
                     'min_doc_count' => $this->_minDocCount
                 ]
             ]
-        ];
+        ]);
     }
 
     public function minDocCount($minDocCount): self

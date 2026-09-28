@@ -2,9 +2,9 @@
 
 namespace Zvonchuk\Elastic\Search\Aggregations\Metrics;
 
-use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
+use Zvonchuk\Elastic\Search\Aggregations\MetricAggregationBuilder;
 
-class AvgBuilder extends AggregationBuilder
+class AvgBuilder extends MetricAggregationBuilder
 {
     private string $field;
 
