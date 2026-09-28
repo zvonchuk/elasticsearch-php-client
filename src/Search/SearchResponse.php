@@ -23,9 +23,12 @@ class SearchResponse
         return $this->response['hits']['hits'];
     }
 
-    public function getTotal() : int
+    /**
+     * Number of matching documents, or null when the search ran with track_total_hits disabled.
+     */
+    public function getTotal(): ?int
     {
-        return $this->response['hits']['total']['value'];
+        return $this->response['hits']['total']['value'] ?? null;
     }
 
 }

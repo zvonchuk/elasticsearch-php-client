@@ -42,4 +42,10 @@ final class ResponsesTest extends TestCase
     {
         self::assertSame(7, (new CountResponse(['count' => 7]))->getCount());
     }
+
+    public function testTotalIsNullWhenHitsAreNotTracked(): void
+    {
+        $response = new SearchResponse(['hits' => ['max_score' => null, 'hits' => []]]);
+        self::assertNull($response->getTotal());
+    }
 }
