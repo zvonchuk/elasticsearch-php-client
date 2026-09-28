@@ -282,4 +282,21 @@ final class SearchTest extends IntegrationTestCase
         self::assertEqualsWithDelta(5.0, $score($disMax), 0.0001, 'dis_max takes the best query');
         self::assertEqualsWithDelta(5.3, $score($disMax->tieBreaker(0.1)), 0.0001, 'plus tie_breaker x the others');
     }
+
+    public function testTermLevelQueries(): void
+    {
+        $this->seed([
+            '1' => ['code' => 'AZE1234567', 'name' => 'huseynov'],
+            '2' => ['code' => 'GEO7654321', 'name' => 'aliyev'],
+        ], ['code' => ['type' => 'keyword'], 'name' => ['type' => 'keyword']]);
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $ids = fn ($query) => array_column($client->search((new SearchRequest($this->index))->source(
+            (new SearchSourceBuilder())->query($query),
+        ))->getHits(), '_id');
+
+        self::assertSame(['1'], $ids(QueryBuilders::prefixQuery('code', 'aze')->caseInsensitive()));
+        self::assertSame(['2'], $ids(QueryBuilders::wildcardQuery('code', 'GEO*21')));
+        self::assertSame(['2'], $ids(QueryBuilders::idsQuery(['2', 'missing'])));
+        self::assertSame(['1'], $ids(QueryBuilders::fuzzyQuery('name', 'guseynov')->fuzziness(1)->prefixLength(0)));
+    }
 }

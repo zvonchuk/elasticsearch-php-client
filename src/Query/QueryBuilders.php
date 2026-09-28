@@ -68,6 +68,27 @@ final class QueryBuilders
         return new MatchPhrasePrefixQueryBuilder($field, $value);
     }
 
+    public static function prefixQuery(string $field, string $value): PrefixQueryBuilder
+    {
+        return new PrefixQueryBuilder($field, $value);
+    }
+
+    public static function wildcardQuery(string $field, string $pattern): WildcardQueryBuilder
+    {
+        return new WildcardQueryBuilder($field, $pattern);
+    }
+
+    /** @param list<string> $ids */
+    public static function idsQuery(array $ids): IdsQueryBuilder
+    {
+        return new IdsQueryBuilder($ids);
+    }
+
+    public static function fuzzyQuery(string $field, string $value): FuzzyQueryBuilder
+    {
+        return new FuzzyQueryBuilder($field, $value);
+    }
+
     public static function rangeQuery(string $field): RangeQueryBuilder
     {
         return new RangeQueryBuilder($field);
