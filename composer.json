@@ -15,11 +15,29 @@
   ],
   "minimum-stability": "stable",
   "require": {
-        "elasticsearch/elasticsearch": "^7.11"
+    "php": "^8.1",
+    "elasticsearch/elasticsearch": "^7.11"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5",
+    "phpstan/phpstan": "^2.1"
   },
   "autoload": {
     "psr-4": {
       "Zvonchuk\\Elastic\\": "src"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Zvonchuk\\Elastic\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --testsuite unit",
+    "test:integration": "phpunit --testsuite integration",
+    "analyse": "phpstan analyse --memory-limit=512M"
+  },
+  "config": {
+    "sort-packages": true
   }
 }

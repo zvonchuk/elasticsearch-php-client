@@ -1,0 +1,25 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Zvonchuk\\Elastic\\Query\\GeoDistanceQueryBuilder\:\:\$location\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Query/GeoDistanceQueryBuilder.php
+
+		-
+			message: '#^Access to an undefined property Zvonchuk\\Elastic\\Search\\Aggregations\\AggregationBuilders\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Search/Aggregations/AggregationBuilders.php
+
+		-
+			message: '#^Instantiated class Zvonchuk\\Elastic\\Search\\Sort\\Exception not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Search/Sort/GeoSort.php
+
+		-
+			message: '#^Instantiated class Zvonchuk\\Elastic\\Search\\Sort\\Exception not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Search/Sort/ScriptSort.php
