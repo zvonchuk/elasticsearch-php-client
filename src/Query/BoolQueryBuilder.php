@@ -17,25 +17,25 @@ class BoolQueryBuilder extends QueryBuilder
 
     public function must(QueryBuilder $query)
     {
-        $this->mustClauses[] = $query->getSource();
+        $this->mustClauses[] = $query;
         return $this;
     }
 
     public function mustNot(QueryBuilder $query)
     {
-        $this->mustNotClauses[] = $query->getSource();
+        $this->mustNotClauses[] = $query;
         return $this;
     }
 
     public function filter(QueryBuilder $query)
     {
-        $this->filterClauses[] = $query->getSource();
+        $this->filterClauses[] = $query;
         return $this;
     }
 
     public function should(QueryBuilder $query)
     {
-        $this->shouldClauses[] = $query->getSource();
+        $this->shouldClauses[] = $query;
         return $this;
     }
 
@@ -44,7 +44,7 @@ class BoolQueryBuilder extends QueryBuilder
         $clauses = [];
         foreach (['must' => 'must', 'must_not' => 'mustNot', 'filter' => 'filter', 'should' => 'should'] as $key => $clause) {
             if (count($this->{$clause . 'Clauses'})) {
-                $clauses[$key] = $this->{$clause . 'Clauses'};
+                $clauses[$key] = array_map(fn (QueryBuilder $query) => $query->getSource(), $this->{$clause . 'Clauses'});
             }
         }
 

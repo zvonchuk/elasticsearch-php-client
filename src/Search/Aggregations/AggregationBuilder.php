@@ -5,16 +5,13 @@ namespace Zvonchuk\Elastic\Search\Aggregations;
 abstract class AggregationBuilder
 {
     protected string $name;
-    protected ?array $aggregations = null;
+    /** @var AggregationBuilder[] */
+    protected array $aggregations = [];
     abstract public function getSource();
 
     public function subAggregation(AggregationBuilder $subAggregation): AggregationBuilder
     {
-        if ($this->aggregations) {
-            $this->aggregations = array_merge($this->aggregations, $subAggregation->getSource());
-        } else {
-            $this->aggregations = $subAggregation->getSource();
-        }
+        $this->aggregations[] = $subAggregation;
 
         return $this;
     }
@@ -25,7 +22,9 @@ abstract class AggregationBuilder
     protected function withSubAggregations(array $source): array
     {
         if ($this->aggregations) {
-            $source[$this->name]['aggregations'] = $this->aggregations;
+            $source[$this->name]['aggregations'] = array_merge(
+                ...array_map(fn (AggregationBuilder $aggregation) => $aggregation->getSource(), $this->aggregations),
+            );
         }
 
         return $source;

@@ -7,12 +7,13 @@ namespace Zvonchuk\Elastic\Search\Builder;
 use Zvonchuk\Elastic\Query\QueryBuilder;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
 use Zvonchuk\Elastic\Search\Sort\SortBuilder;
-use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
 class SearchSourceBuilder
 {
     private ?QueryBuilder $query = null;
+    /** @var AggregationBuilder[] */
     private array $aggregations = [];
+    /** @var SortBuilder[] */
     private array $sort = [];
     private int $from = 0;
     private int $size = 10;
@@ -46,13 +47,13 @@ class SearchSourceBuilder
 
     public function sort(SortBuilder $sort)
     {
-        $this->sort = array_merge($this->sort, $sort->getSource());
+        $this->sort[] = $sort;
         return $this;
     }
 
     public function aggregation(AggregationBuilder $aggregation)
     {
-        $this->aggregations = array_merge($this->aggregations, $aggregation->getSource());
+        $this->aggregations[] = $aggregation;
         return $this;
     }
 
@@ -74,7 +75,11 @@ class SearchSourceBuilder
             $return['query'] = $this->query->getSource();
         }
 
-        if (count($this->aggregations)) $return['aggregations'] = $this->aggregations;
+        if (count($this->aggregations)) {
+            $return['aggregations'] = array_merge(
+                ...array_map(fn (AggregationBuilder $aggregation) => $aggregation->getSource(), $this->aggregations),
+            );
+        }
 
         $return['size'] = $this->size;
         $return['from'] = $this->from;
@@ -84,7 +89,7 @@ class SearchSourceBuilder
         }
 
         if (count($this->sort) > 0) {
-            $return['sort'] = $this->sort;
+            $return['sort'] = array_merge(...array_map(fn (SortBuilder $sort) => $sort->getSource(), $this->sort));
         }
 
         if (count($this->excludeFields) > 0) {
