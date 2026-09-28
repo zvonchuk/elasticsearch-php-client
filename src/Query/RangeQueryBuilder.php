@@ -42,7 +42,7 @@ class RangeQueryBuilder extends QueryBuilder
             }
         }
 
-        return ['range' => [$this->field => $bounds]];
+        return ['range' => [$this->field => $bounds + $this->commonOptions()]];
     }
 
     private function bound(string $clause, int|float|string|\DateTimeInterface $value): static

@@ -63,6 +63,6 @@ class GeoBoundingBoxQueryBuilder extends QueryBuilder
             }
         }
 
-        return ['geo_bounding_box' => [$this->field => $corners]];
+        return ['geo_bounding_box' => [$this->field => $corners] + $this->commonOptions()];
     }
 }

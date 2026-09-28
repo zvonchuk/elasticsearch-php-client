@@ -12,6 +12,9 @@ class MatchPhrasePrefixQueryBuilder extends QueryBuilder
 
     public function toArray(): array
     {
-        return ['match_phrase_prefix' => [$this->field => $this->value]];
+        $options = $this->commonOptions();
+        $body = $options === [] ? $this->value : ['query' => $this->value] + $options;
+
+        return ['match_phrase_prefix' => [$this->field => $body]];
     }
 }

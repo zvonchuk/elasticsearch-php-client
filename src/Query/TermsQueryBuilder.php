@@ -13,6 +13,6 @@ class TermsQueryBuilder extends QueryBuilder
 
     public function toArray(): array
     {
-        return ['terms' => [$this->field => $this->values]];
+        return ['terms' => [$this->field => $this->values] + $this->commonOptions()];
     }
 }

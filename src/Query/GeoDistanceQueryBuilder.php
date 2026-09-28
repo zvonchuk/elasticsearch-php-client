@@ -28,6 +28,6 @@ class GeoDistanceQueryBuilder extends QueryBuilder
 
     public function toArray(): array
     {
-        return ['geo_distance' => ['distance' => $this->distance, $this->field => $this->point]];
+        return ['geo_distance' => ['distance' => $this->distance, $this->field => $this->point] + $this->commonOptions()];
     }
 }

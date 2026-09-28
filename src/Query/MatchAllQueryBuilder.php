@@ -8,6 +8,8 @@ class MatchAllQueryBuilder extends QueryBuilder
 {
     public function toArray(): array
     {
-        return ['match_all' => new \stdClass()];
+        $options = $this->commonOptions();
+
+        return ['match_all' => $options === [] ? new \stdClass() : $options];
     }
 }

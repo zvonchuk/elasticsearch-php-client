@@ -42,6 +42,8 @@ class BoolQueryBuilder extends QueryBuilder
             }
         }
 
+        $body += $this->commonOptions();
+
         return ['bool' => $body === [] ? new \stdClass() : $body];
     }
 }

@@ -172,4 +172,53 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['1.0', '5.0', '25.0', '50.0', '75.0', '95.0', '99.0'], array_keys($response->getAggregations()['p']['values']));
     }
+
+    public function testEveryQueryTypeAcceptsBoostAndName(): void
+    {
+        $this->seed(
+            ['1' => ['title' => 'quick brown fox', 'tag' => 'animal', 'n' => 5, 'pin' => ['lat' => 40.41, 'lon' => 49.87]]],
+            ['tag' => ['type' => 'keyword'], 'n' => ['type' => 'integer'], 'pin' => ['type' => 'geo_point']],
+        );
+
+        $named = [
+            'match' => QueryBuilders::matchQuery('title', 'fox'),
+            'term' => QueryBuilders::termQuery('tag', 'animal'),
+            'terms' => QueryBuilders::termsQuery('tag', ['animal', 'plant']),
+            'range' => QueryBuilders::rangeQuery('n')->gte(1)->lte(10),
+            'match_phrase' => QueryBuilders::matchPhraseQuery('title', 'brown fox'),
+            'match_phrase_prefix' => QueryBuilders::matchPhrasePrefixQuery('title', 'quick bro'),
+            'exists' => QueryBuilders::existsQuery('title'),
+            'match_all' => QueryBuilders::matchAllQuery(),
+            'geo_distance' => QueryBuilders::geoDistanceQuery('pin')->distance('5km')->point(40.4, 49.86),
+            'geo_bounding_box' => QueryBuilders::geoBoundingBoxQuery('pin')
+                ->topLeft(['lat' => 41.0, 'lon' => 49.0])->bottomRight(['lat' => 40.0, 'lon' => 50.0]),
+        ];
+        $bool = QueryBuilders::boolQuery()->queryName('bool')->boost(1.5);
+        foreach ($named as $name => $query) {
+            $bool->should($query->queryName($name)->boost(2));
+        }
+
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($bool)));
+
+        $matched = $response->getHits()[0]['matched_queries'];
+        sort($matched);
+        $expected = array_merge(array_keys($named), ['bool']);
+        sort($expected);
+        self::assertSame($expected, $matched);
+    }
+
+    public function testBoostChangesTheOrder(): void
+    {
+        $this->seed(['a' => ['tag' => 'a'], 'b' => ['tag' => 'b']], ['tag' => ['type' => 'keyword']]);
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $order = fn (float $boostA, float $boostB) => array_column($client->search((new SearchRequest($this->index))->source(
+            (new SearchSourceBuilder())->query(QueryBuilders::boolQuery()
+                ->should(QueryBuilders::termQuery('tag', 'a')->boost($boostA))
+                ->should(QueryBuilders::termQuery('tag', 'b')->boost($boostB))),
+        ))->getHits(), '_id');
+
+        self::assertSame(['a', 'b'], $order(5, 1));
+        self::assertSame(['b', 'a'], $order(1, 5));
+    }
 }

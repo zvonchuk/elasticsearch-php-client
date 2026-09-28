@@ -12,6 +12,6 @@ class ExistsQueryBuilder extends QueryBuilder
 
     public function toArray(): array
     {
-        return ['exists' => ['field' => $this->field]];
+        return ['exists' => ['field' => $this->field] + $this->commonOptions()];
     }
 }

@@ -35,6 +35,6 @@ class MatchQueryBuilder extends QueryBuilder
             $query['fuzziness'] = $this->fuzziness;
         }
 
-        return ['match' => [$this->field => $query]];
+        return ['match' => [$this->field => $query + $this->commonOptions()]];
     }
 }
