@@ -26,6 +26,7 @@ class SearchSourceBuilder
     private ?string $timeout = null;
     private bool|int|null $trackTotalHits = null;
     private ?float $minScore = null;
+    private ?bool $explain = null;
 
     public function query(QueryInterface $query): static
     {
@@ -105,6 +106,15 @@ class SearchSourceBuilder
         return $this;
     }
 
+    /**
+     * Ask Elasticsearch to explain how each hit's score was computed (SearchHit::$explanation). Debugging aid: slow.
+     */
+    public function explain(bool $explain = true): static
+    {
+        $this->explain = $explain;
+        return $this;
+    }
+
     /** @return array<string, mixed> the search request body */
     public function toArray(): array
     {
@@ -139,6 +149,9 @@ class SearchSourceBuilder
         }
         if ($this->minScore !== null) {
             $body['min_score'] = $this->minScore;
+        }
+        if ($this->explain !== null) {
+            $body['explain'] = $this->explain;
         }
 
         return $body;

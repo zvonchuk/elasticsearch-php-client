@@ -11,6 +11,7 @@ final class SearchHit
      * @param list<string>                $matchedQueries names (_name) of the queries this hit matched
      * @param list<mixed>                 $sort           sort values, usable for search_after
      * @param array<string, list<string>> $highlight
+     * @param array<string, mixed>|null   $explanation    score explanation, when the search ran with explain
      */
     public function __construct(
         public readonly string $index,
@@ -20,6 +21,7 @@ final class SearchHit
         public readonly array $matchedQueries = [],
         public readonly array $sort = [],
         public readonly array $highlight = [],
+        public readonly ?array $explanation = null,
     ) {
     }
 
@@ -34,6 +36,7 @@ final class SearchHit
             matchedQueries: array_values($hit['matched_queries'] ?? []),
             sort: array_values($hit['sort'] ?? []),
             highlight: $hit['highlight'] ?? [],
+            explanation: $hit['_explanation'] ?? null,
         );
     }
 

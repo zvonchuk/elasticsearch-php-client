@@ -58,4 +58,10 @@ final class SortAndSourceTest extends TestCase
         self::assertRenders('{"size":50,"from":0,"timeout":"2s","track_total_hits":false,"min_score":3.5}', $source->toArray());
         self::assertSame(10000, (new SearchSourceBuilder())->trackTotalHits(10000)->toArray()['track_total_hits']);
     }
+
+    public function testExplain(): void
+    {
+        self::assertTrue((new SearchSourceBuilder())->explain()->toArray()['explain']);
+        self::assertArrayNotHasKey('explain', (new SearchSourceBuilder())->toArray());
+    }
 }

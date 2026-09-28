@@ -426,6 +426,18 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame(3, $aggregations['everything']['doc_count']);
         self::assertEqualsWithDelta(100.0, $aggregations['everything']['total']['value'], 0.001);
     }
+
+    public function testExplainFillsTheHitExplanation(): void
+    {
+        $this->seed(['1' => ['tag' => 'a']], ['tag' => ['type' => 'keyword']]);
+        $source = (new SearchSourceBuilder())->query(QueryBuilders::termQuery('tag', 'a'))->explain();
+
+        $hit = $this->client()->search((new SearchRequest($this->index))->source($source))->hits()[0];
+
+        self::assertNotNull($hit->explanation);
+        self::assertArrayHasKey('value', $hit->explanation);
+        self::assertArrayHasKey('description', $hit->explanation);
+    }
 }
 
 final class Person
