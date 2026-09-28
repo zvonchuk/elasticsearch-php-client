@@ -46,6 +46,15 @@ final class DocumentMappingTest extends TestCase
         $this->response([['name' => 'Case', 'price' => 'free']])->documents(Product::class);
     }
 
+    public function testAcronymParameterNamesFindTheirSnakeCaseFields(): void
+    {
+        $response = new SearchResponse(['hits' => ['hits' => [
+            ['_index' => 'p', '_id' => '1', '_score' => 1.0, '_source' => ['user_id' => 7, 'html_body' => '<p>', 'iso2_code' => 'AZ']],
+        ]]]);
+
+        self::assertEquals([new Account(7, '<p>', 'AZ')], $response->documents(Account::class));
+    }
+
     public function testMapWithACallable(): void
     {
         $ids = $this->response([['name' => 'a', 'price' => 1.0]])->map(static fn (SearchHit $hit): string => $hit->id . ':' . $hit->source['name']);
@@ -72,6 +81,16 @@ final class Product
         public readonly float $price,
         public readonly ?string $createdAt,
         public readonly array $tags = [],
+    ) {
+    }
+}
+
+final class Account
+{
+    public function __construct(
+        public readonly int $userID,
+        public readonly string $HTMLBody,
+        public readonly string $iso2Code,
     ) {
     }
 }

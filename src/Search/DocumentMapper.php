@@ -27,7 +27,7 @@ final class DocumentMapper
         $arguments = [];
         foreach ($constructor->getParameters() as $parameter) {
             $name = $parameter->getName();
-            $snake = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+            $snake = self::snakeCase($name);
             if (array_key_exists($name, $source)) {
                 $arguments[$name] = $source[$name];
             } elseif (array_key_exists($snake, $source)) {
@@ -51,5 +51,13 @@ final class DocumentMapper
         } catch (\TypeError $e) {
             throw new \UnexpectedValueException(sprintf('Cannot build %s from the document: %s', $class, $e->getMessage()), 0, $e);
         }
+    }
+
+    /**
+     * createdAt → created_at, userID → user_id, HTMLBody → html_body, iso2Code → iso2_code.
+     */
+    private static function snakeCase(string $name): string
+    {
+        return strtolower((string) preg_replace(['/(?<=[a-z0-9])(?=[A-Z])/', '/(?<=[A-Z])(?=[A-Z][a-z])/'], '_', $name));
     }
 }
