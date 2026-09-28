@@ -128,4 +128,20 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['mid'], array_column($response->getHits(), '_id'));
     }
+
+    public function testTermOnABooleanField(): void
+    {
+        $this->seed([
+            'on' => ['active' => true],
+            'off' => ['active' => false],
+        ], ['active' => ['type' => 'boolean']]);
+
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $find = fn (bool $value) => array_column($client->search((new SearchRequest($this->index))->source(
+            (new SearchSourceBuilder())->query(QueryBuilders::termQuery('active', $value)),
+        ))->getHits(), '_id');
+
+        self::assertSame(['on'], $find(true));
+        self::assertSame(['off'], $find(false));
+    }
 }

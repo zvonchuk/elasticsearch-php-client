@@ -25,7 +25,7 @@ class QueryBuilders
         return new GeoBoundingBoxQueryBuilder($field);
     }
 
-    public static function termQuery(string $field, $value): TermQueryBuilder
+    public static function termQuery(string $field, int|float|bool|string $value): TermQueryBuilder
     {
         return new TermQueryBuilder($field, $value);
     }
@@ -35,7 +35,7 @@ class QueryBuilders
         return new TermsQueryBuilder($field, $value);
     }
 
-    public static function matchQuery(string $field, $value): MatchQueryBuilder
+    public static function matchQuery(string $field, int|float|bool|string $value): MatchQueryBuilder
     {
         return new MatchQueryBuilder($field, $value);
     }

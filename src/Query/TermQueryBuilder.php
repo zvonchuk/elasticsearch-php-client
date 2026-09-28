@@ -5,9 +5,9 @@ namespace Zvonchuk\Elastic\Query;
 class TermQueryBuilder extends QueryBuilder
 {
     private string $field;
-    private string $value;
+    private int|float|bool|string $value;
 
-    public function __construct(string $field, string $value)
+    public function __construct(string $field, int|float|bool|string $value)
     {
         $this->name = 'term';
         $this->field = $field;

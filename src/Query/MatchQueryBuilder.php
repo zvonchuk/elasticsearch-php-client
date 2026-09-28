@@ -5,11 +5,11 @@ namespace Zvonchuk\Elastic\Query;
 class MatchQueryBuilder extends QueryBuilder
 {
     private string $field;
-    private string $value;
+    private int|float|bool|string $value;
     private ?string $operator = null;
     private ?string $fuzziness = null;
 
-    public function __construct(string $field, string $value)
+    public function __construct(string $field, int|float|bool|string $value)
     {
         $this->name = 'match';
         $this->field = $field;

@@ -118,4 +118,17 @@ final class QueryBuildersTest extends TestCase
             QueryBuilders::rangeQuery('created_at')->gt($from)->getSource(),
         );
     }
+
+    public function testTermKeepsValueTypes(): void
+    {
+        self::assertRenders('{"term":{"active":{"value":true}}}', QueryBuilders::termQuery('active', true)->getSource());
+        self::assertRenders('{"term":{"active":{"value":false}}}', QueryBuilders::termQuery('active', false)->getSource());
+        self::assertRenders('{"term":{"year":{"value":1950}}}', QueryBuilders::termQuery('year', 1950)->getSource());
+        self::assertRenders('{"term":{"ratio":{"value":0.5}}}', QueryBuilders::termQuery('ratio', 0.5)->getSource());
+    }
+
+    public function testMatchKeepsValueTypes(): void
+    {
+        self::assertRenders('{"match":{"year":{"query":1950}}}', QueryBuilders::matchQuery('year', 1950)->getSource());
+    }
 }
