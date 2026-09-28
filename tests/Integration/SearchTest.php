@@ -16,7 +16,6 @@ use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 use Zvonchuk\Elastic\Search\MultiSearchException;
 use Zvonchuk\Elastic\Search\Sort\GeoSort;
-use Zvonchuk\Elastic\Search\Sort\SortBuilder;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
 final class SearchTest extends IntegrationTestCase
@@ -82,7 +81,7 @@ final class SearchTest extends IntegrationTestCase
             'near' => ['pin' => ['lat' => 40.41, 'lon' => 49.87]],
         ], ['pin' => ['type' => 'geo_point']]);
 
-        $sort = SortBuilders::geoDistanceSort('pin', 40.4, 49.86)->order(SortBuilder::ASC)->unit(GeoSort::NAUTICALMILES);
+        $sort = SortBuilders::geoDistanceSort('pin', 40.4, 49.86)->unit(GeoSort::NAUTICALMILES);
         $response = $this->client()
             ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->sort($sort)));
 

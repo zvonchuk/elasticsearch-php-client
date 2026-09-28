@@ -42,4 +42,10 @@ final class SortValidationTest extends TestCase
             SortBuilders::geoDistanceSort('pin', 40.4, 49.8)->order(SortBuilder::ASC)->unit(GeoSort::KILOMETERS)->getSource(),
         );
     }
+
+    public function testGeoSortIsClosestFirstByDefault(): void
+    {
+        self::assertSame(SortBuilder::ASC, SortBuilders::geoDistanceSort('pin', 40.4, 49.8)->toArray()['_geo_distance']['order']);
+        self::assertSame(SortBuilder::DESC, SortBuilders::fieldSort('price')->toArray()['price'], 'field sort keeps its default');
+    }
 }
