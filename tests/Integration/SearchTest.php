@@ -299,4 +299,22 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame(['2'], $ids(QueryBuilders::idsQuery(['2', 'missing'])));
         self::assertSame(['1'], $ids(QueryBuilders::fuzzyQuery('name', 'guseynov')->fuzziness(1)->prefixLength(0)));
     }
+
+    public function testNestedMatchesEachObjectOnItsOwn(): void
+    {
+        $this->seed([
+            'match' => ['documents' => [['type' => 'passport', 'number' => 'A1'], ['type' => 'id', 'number' => 'B2']]],
+            'crossed' => ['documents' => [['type' => 'passport', 'number' => 'B2'], ['type' => 'id', 'number' => 'A1']]],
+        ], ['documents' => ['type' => 'nested', 'properties' => [
+            'type' => ['type' => 'keyword'], 'number' => ['type' => 'keyword'],
+        ]]]);
+
+        $query = QueryBuilders::nestedQuery('documents', QueryBuilders::boolQuery()
+            ->must(QueryBuilders::termQuery('documents.type', 'passport'))
+            ->must(QueryBuilders::termQuery('documents.number', 'A1')));
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        self::assertSame(['match'], array_column($response->getHits(), '_id'));
+    }
 }

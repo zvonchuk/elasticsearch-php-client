@@ -21,6 +21,11 @@ final class QueryBuilders
         return new ConstantScoreQueryBuilder($filter);
     }
 
+    public static function nestedQuery(string $path, QueryInterface $query): NestedQueryBuilder
+    {
+        return new NestedQueryBuilder($path, $query);
+    }
+
     public static function matchAllQuery(): MatchAllQueryBuilder
     {
         return new MatchAllQueryBuilder();
