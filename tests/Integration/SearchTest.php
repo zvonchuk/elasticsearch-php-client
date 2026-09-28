@@ -9,6 +9,7 @@ use Zvonchuk\Elastic\Core\CountRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
 use Zvonchuk\Elastic\Core\MultiSearchRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
+use Zvonchuk\Elastic\Indices\CreateRequest;
 use Zvonchuk\Elastic\Query\MultiMatchQueryBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
@@ -381,6 +382,30 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame([1], array_keys($withMissingIndex->failures()));
         $this->expectException(MultiSearchException::class);
         $withMissingIndex->all();
+    }
+
+    public function testReindexBehindAnAliasWithoutDowntime(): void
+    {
+        $indices = $this->client()->indices();
+        $alias = $this->index;
+        $v1 = $this->index . '_v1';
+        $v2 = $this->index . '_v2';
+        $mappings = ['dynamic' => 'strict', 'properties' => ['tag' => ['type' => 'keyword']]];
+
+        $indices->create((new CreateRequest($v1))->mappings($mappings)->alias($alias));
+        self::$elasticsearch->index(['index' => $v1, 'id' => 'old', 'body' => ['tag' => 'a'], 'refresh' => true]);
+        $indices->create((new CreateRequest($v2))->mappings($mappings));
+        self::$elasticsearch->index(['index' => $v2, 'id' => 'new', 'body' => ['tag' => 'a'], 'refresh' => true]);
+
+        $read = fn () => array_column($this->client()->search(new SearchRequest($alias))->getHits(), '_id');
+        self::assertSame([$v1], $indices->indicesForAlias($alias));
+        self::assertSame(['old'], $read());
+
+        self::assertSame([$v1], $indices->swapAlias($alias, $v2));
+        self::assertSame([$v2], $indices->indicesForAlias($alias));
+        self::assertSame(['new'], $read());
+        self::assertSame([], $indices->swapAlias($alias, $v2), 'swapping to the current index changes nothing');
+        self::assertSame([], $indices->indicesForAlias($alias . '_none'));
     }
 }
 
