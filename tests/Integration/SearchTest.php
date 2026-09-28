@@ -406,6 +406,26 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame([], $indices->swapAlias($alias, $v2), 'swapping to the current index changes nothing');
         self::assertSame([], $indices->indicesForAlias($alias . '_none'));
     }
+
+    public function testSumAndGlobalIgnoreTheQuery(): void
+    {
+        $this->seed([
+            '1' => ['tag' => 'a', 'amount' => 10],
+            '2' => ['tag' => 'a', 'amount' => 20],
+            '3' => ['tag' => 'b', 'amount' => 70],
+        ], ['tag' => ['type' => 'keyword'], 'amount' => ['type' => 'integer']]);
+
+        $source = (new SearchSourceBuilder())
+            ->query(QueryBuilders::termQuery('tag', 'a'))
+            ->size(0)
+            ->aggregation(AggregationBuilders::sum('matching_total')->field('amount'))
+            ->aggregation(AggregationBuilders::global('everything')->subAggregation(AggregationBuilders::sum('total')->field('amount')));
+        $aggregations = $this->client()->search((new SearchRequest($this->index))->source($source))->getAggregations();
+
+        self::assertEqualsWithDelta(30.0, $aggregations['matching_total']['value'], 0.001);
+        self::assertSame(3, $aggregations['everything']['doc_count']);
+        self::assertEqualsWithDelta(100.0, $aggregations['everything']['total']['value'], 0.001);
+    }
 }
 
 final class Person

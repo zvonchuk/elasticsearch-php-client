@@ -75,4 +75,17 @@ final class AggregationBuildersTest extends TestCase
             AggregationBuilders::percentiles('p')->field('took')->toArray(),
         );
     }
+
+    public function testSum(): void
+    {
+        self::assertRenders('{"total":{"sum":{"field":"amount"}}}', AggregationBuilders::sum('total')->field('amount')->toArray());
+    }
+
+    public function testGlobalWithSubAggregations(): void
+    {
+        self::assertRenders(
+            '{"all":{"global":{},"aggregations":{"avg_price":{"avg":{"field":"price"}}}}}',
+            AggregationBuilders::global('all')->subAggregation(AggregationBuilders::avg('avg_price')->field('price'))->toArray(),
+        );
+    }
 }

@@ -57,6 +57,7 @@ final class SubAggregationsTest extends TestCase
         yield 'extended_stats' => [AggregationBuilders::extendedStats('m')->field('x')];
         yield 'geo_centroid' => [AggregationBuilders::geoCentroid('m')->field('x')];
         yield 'percentiles' => [AggregationBuilders::percentiles('m')->field('x')];
+        yield 'sum' => [AggregationBuilders::sum('m')->field('x')];
     }
 
     #[DataProvider('metrics')]
