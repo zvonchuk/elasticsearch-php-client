@@ -34,7 +34,7 @@ class DateHistogramBuilder extends AggregationBuilder
                 ],
             ],
         ];
-        if (count($this->aggregations) > 0) {
+        if ($this->aggregations) {
             $return[$this->name]['aggregations'] = $this->aggregations;
         }
 

@@ -59,4 +59,12 @@ final class AggregationBuildersTest extends TestCase
             $agg->getSource(),
         );
     }
+
+    public function testDateHistogramWithoutSubAggregations(): void
+    {
+        self::assertRenders(
+            '{"d":{"date_histogram":{"field":"ts","calendar_interval":"1d","min_doc_count":0}}}',
+            AggregationBuilders::dateHistogram('d')->field('ts')->getSource(),
+        );
+    }
 }
