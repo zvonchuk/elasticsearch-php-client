@@ -8,6 +8,7 @@ class BoolQueryBuilder extends QueryBuilder
 {
     /** @var array<string, list<QueryInterface>> Elasticsearch clause name => queries */
     private array $clauses = ['must' => [], 'must_not' => [], 'filter' => [], 'should' => []];
+    private int|string|null $minimumShouldMatch = null;
 
     public function must(QueryInterface $query): static
     {
@@ -33,6 +34,15 @@ class BoolQueryBuilder extends QueryBuilder
         return $this;
     }
 
+    /**
+     * How many should clauses must match: a number (2), a negative number (-1) or a percentage ("75%").
+     */
+    public function minimumShouldMatch(int|string $minimumShouldMatch): static
+    {
+        $this->minimumShouldMatch = $minimumShouldMatch;
+        return $this;
+    }
+
     public function toArray(): array
     {
         $body = [];
@@ -42,6 +52,9 @@ class BoolQueryBuilder extends QueryBuilder
             }
         }
 
+        if ($this->minimumShouldMatch !== null) {
+            $body['minimum_should_match'] = $this->minimumShouldMatch;
+        }
         $body += $this->commonOptions();
 
         return ['bool' => $body === [] ? new \stdClass() : $body];

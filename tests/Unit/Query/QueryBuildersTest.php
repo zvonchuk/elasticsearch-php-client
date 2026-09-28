@@ -131,4 +131,16 @@ final class QueryBuildersTest extends TestCase
     {
         self::assertRenders('{"match":{"year":{"query":1950}}}', QueryBuilders::matchQuery('year', 1950)->getSource());
     }
+
+    public function testBoolMinimumShouldMatch(): void
+    {
+        $bool = fn (int|string $msm) => QueryBuilders::boolQuery()
+            ->should(QueryBuilders::termQuery('a', 1))
+            ->should(QueryBuilders::termQuery('b', 2))
+            ->minimumShouldMatch($msm)
+            ->toArray();
+
+        self::assertRenders('{"bool":{"should":[{"term":{"a":{"value":1}}},{"term":{"b":{"value":2}}}],"minimum_should_match":1}}', $bool(1));
+        self::assertSame('75%', $bool('75%')['bool']['minimum_should_match']);
+    }
 }

@@ -221,4 +221,21 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame(['a', 'b'], $order(5, 1));
         self::assertSame(['b', 'a'], $order(1, 5));
     }
+
+    public function testMinimumShouldMatch(): void
+    {
+        $this->seed([
+            'both' => ['a' => 'x', 'b' => 'y'],
+            'one' => ['a' => 'x', 'b' => 'z'],
+        ], ['a' => ['type' => 'keyword'], 'b' => ['type' => 'keyword']]);
+
+        $query = QueryBuilders::boolQuery()
+            ->should(QueryBuilders::termQuery('a', 'x'))
+            ->should(QueryBuilders::termQuery('b', 'y'))
+            ->minimumShouldMatch(2);
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        self::assertSame(['both'], array_column($response->getHits(), '_id'));
+    }
 }
