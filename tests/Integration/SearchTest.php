@@ -10,6 +10,9 @@ use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
+use Zvonchuk\Elastic\Search\Sort\GeoSort;
+use Zvonchuk\Elastic\Search\Sort\SortBuilder;
+use Zvonchuk\Elastic\Search\Sort\SortBuilders;
 
 final class SearchTest extends IntegrationTestCase
 {
@@ -65,5 +68,19 @@ final class SearchTest extends IntegrationTestCase
         $buckets = array_column($response->getAggregations()['by_tag']['buckets'], null, 'key');
         self::assertEqualsWithDelta(15.0, $buckets['a']['avg_price']['value'], 0.001);
         self::assertEqualsWithDelta(50.0, $buckets['b']['avg_price']['value'], 0.001);
+    }
+
+    public function testGeoDistanceSortOnACustomField(): void
+    {
+        $this->seed([
+            'far' => ['pin' => ['lat' => 41.0, 'lon' => 50.0]],
+            'near' => ['pin' => ['lat' => 40.41, 'lon' => 49.87]],
+        ], ['pin' => ['type' => 'geo_point']]);
+
+        $sort = SortBuilders::geoDistanceSort('pin', 40.4, 49.86)->order(SortBuilder::ASC)->unit(GeoSort::NAUTICALMILES);
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->sort($sort)));
+
+        self::assertSame(['near', 'far'], array_column($response->getHits(), '_id'));
     }
 }

@@ -27,7 +27,10 @@ class GeoSort extends SortBuilder
 
     public function unit(string $unit): GeoSort
     {
-        $keys = ['in', 'yd', 'ft', 'km', 'NM', 'mm', 'cm', 'mi', 'm'];
+        $keys = [
+            self::INCH, self::YARD, self::FEET, self::KILOMETERS, self::NAUTICALMILES, 'NM',
+            self::MILLIMETERS, self::CENTIMETERS, self::MILES, self::METERS,
+        ];
 
         if (!in_array($unit, $keys, true)) {
             throw new \InvalidArgumentException(sprintf(
@@ -45,7 +48,7 @@ class GeoSort extends SortBuilder
     {
         return [
             '_geo_distance' => [
-                'location' => [
+                $this->field => [
                     'lat' => $this->lat,
                     'lon' => $this->lon,
                 ],
