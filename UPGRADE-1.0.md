@@ -39,6 +39,7 @@ Check these if your code relied on them:
 
 - Fluent setters return `static`; builders are typed (`int|float|bool|string` values, `int|float|string|DateTimeInterface` range bounds).
 - `getSource()` / `getQuery()` still work but are deprecated: use `toArray()`.
+- `GeoBoundingBoxQueryBuilder::bounding()` still works but is deprecated: use `topLeft()` / `bottomRight()` (…) and `toArray()`.
 - `BulkRequest::add()` accepts `IndexRequest|UpdateRequest|DeleteRequest`; `BulkRequest` no longer extends `Request`.
 - `GeoDistanceQueryBuilder::point()` takes floats; geo bounding box corners take one point each (`['lat' => .., 'lon' => ..]`, `"lat,lon"` or a geohash).
 - Custom subclasses: `QueryBuilder::$name`, `SortBuilder::$field` and the underscore-prefixed aggregation properties are gone; implement `toArray()` (or the new interfaces) instead of `getSource()`.

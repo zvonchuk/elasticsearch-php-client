@@ -38,6 +38,10 @@ First stable release. Requires PHP 8.1+. See [UPGRADE-1.0.md](UPGRADE-1.0.md) fo
 - Integer document ids in `id()`.
 - `Client::create()` and `Client::elasticsearch()`.
 
+### Deprecated
+- `getSource()` / `getQuery()` in favour of `toArray()`.
+- `GeoBoundingBoxQueryBuilder::bounding()`: it ignores the corner setters, `boost()` and `queryName()`; use the setters.
+
 ### Changed
 - `Client` takes an `\Elasticsearch\Client` in its constructor; `Client::getInstance()` is removed.
 - `declare(strict_types=1)` and full type declarations throughout; `toArray()` replaces `getSource()`/`getQuery()`, which remain as deprecated aliases.

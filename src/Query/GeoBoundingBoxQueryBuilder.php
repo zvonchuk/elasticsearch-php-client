@@ -46,6 +46,9 @@ class GeoBoundingBoxQueryBuilder extends QueryBuilder
     /**
      * Renders a geo_bounding_box query from the recognised corner keys of $location, ignoring the rest.
      *
+     * @deprecated since 1.0, will be removed in 2.0: it ignores corners set with topLeft() etc., boost() and
+     *             queryName(), and returns an array instead of a query. Use the corner setters and toArray().
+     *
      * @param array<string, mixed> $location
      * @return array<string, mixed>
      */

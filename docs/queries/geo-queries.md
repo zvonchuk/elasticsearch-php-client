@@ -52,17 +52,8 @@ Each corner is one point: `['lat' => .., 'lon' => ..]`, a `"lat,lon"` string or 
 }
 ```
 
-`bounding()` returns the same query as a plain array, built from the recognised corner keys of the array you pass:
-
-```php
-<?php
-use Zvonchuk\Elastic\Query\QueryBuilders;
-
-$array = QueryBuilders::geoBoundingBoxQuery('location')->bounding([
-    'top_left' => ['lat' => 42.0, 'lon' => -74.0],
-    'bottom_right' => ['lat' => 40.0, 'lon' => -72.0],
-]);
-```
+> `bounding()` from 0.x is deprecated and will be removed in 2.0: it ignores corners set with the setters above,
+> `boost()` and `queryName()`, and returns an array instead of a query. Use the corner setters.
 
 ## Combining Geo Queries with Other Query Types
 
