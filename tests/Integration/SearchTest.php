@@ -83,4 +83,18 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['near', 'far'], array_column($response->getHits(), '_id'));
     }
+
+    public function testGeoDistanceQueryOnACustomField(): void
+    {
+        $this->seed([
+            'far' => ['pin' => ['lat' => 41.0, 'lon' => 50.0]],
+            'near' => ['pin' => ['lat' => 40.41, 'lon' => 49.87]],
+        ], ['pin' => ['type' => 'geo_point']]);
+
+        $query = QueryBuilders::geoDistanceQuery('pin')->distance('5km')->point(40.4, 49.86);
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        self::assertSame(['near'], array_column($response->getHits(), '_id'));
+    }
 }

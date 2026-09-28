@@ -85,4 +85,12 @@ final class QueryBuildersTest extends TestCase
             $query->getSource(),
         );
     }
+
+    public function testGeoDistanceUsesTheGivenField(): void
+    {
+        self::assertRenders(
+            '{"geo_distance":{"distance":"5km","pin":{"lat":40.4,"lon":49.86}}}',
+            QueryBuilders::geoDistanceQuery('pin')->distance('5km')->point(40.4, 49.86)->getSource(),
+        );
+    }
 }

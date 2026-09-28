@@ -6,7 +6,7 @@ class GeoDistanceQueryBuilder extends QueryBuilder
 {
     private string $field;
     private ?string $distance = null;
-    private ?string $point = null;
+    private ?array $point = null;
 
     public function __construct(string $field)
     {
@@ -20,9 +20,9 @@ class GeoDistanceQueryBuilder extends QueryBuilder
         return $this;
     }
 
-    public function point($lat, $lon): GeoDistanceQueryBuilder
+    public function point(float $lat, float $lon): GeoDistanceQueryBuilder
     {
-        $this->location = $lat . ',' . $lon;
+        $this->point = ['lat' => $lat, 'lon' => $lon];
         return $this;
     }
 
@@ -31,7 +31,7 @@ class GeoDistanceQueryBuilder extends QueryBuilder
         return [
             $this->name => [
                 'distance' => $this->distance,
-                'location' => $this->location
+                $this->field => $this->point,
             ]
         ];
     }
