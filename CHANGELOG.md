@@ -16,6 +16,7 @@ First stable release. Requires PHP 8.1+. See [UPGRADE-1.0.md](UPGRADE-1.0.md) fo
 - `geo_distance` ignored the field name (always `location`).
 - `bool` sent `mustNot` instead of `must_not` (a warning in Elasticsearch 7, an error in 8).
 - `bool`, sub-aggregations, sorts and aggregations captured their children when added; later changes to a child were lost.
+- Several sorts were merged into one object, so sorts with the same key (two geo distance sorts, two script sorts, the same field twice) silently replaced each other; `sort` is now sent as a list in the order added.
 - `range` bounds accepted only strings (`TypeError` for numbers under `strict_types`); they now take numbers, strings and `DateTimeInterface`.
 - `term` and `match` cast values to strings (`true` became `"1"`, rejected on boolean fields).
 - `IndexRequest` without id, an empty `BulkRequest`, `CountRequest` without query and `SearchRequest` without source failed on uninitialised properties; requests that need an id now say so with a `LogicException`.

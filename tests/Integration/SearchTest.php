@@ -438,6 +438,22 @@ final class SearchTest extends IntegrationTestCase
         self::assertArrayHasKey('value', $hit->explanation);
         self::assertArrayHasKey('description', $hit->explanation);
     }
+
+    public function testSeveralSortsApplyInOrder(): void
+    {
+        $this->seed([
+            'a' => ['group' => 1, 'price' => 30],
+            'b' => ['group' => 1, 'price' => 10],
+            'c' => ['group' => 0, 'price' => 20],
+        ], ['group' => ['type' => 'integer'], 'price' => ['type' => 'integer']]);
+
+        $source = (new SearchSourceBuilder())
+            ->sort(SortBuilders::fieldSort('group'))                       // desc
+            ->sort(SortBuilders::fieldSort('price')->order('asc'));        // then cheapest first
+        $response = $this->client()->search((new SearchRequest($this->index))->source($source));
+
+        self::assertSame(['b', 'a', 'c'], array_column($response->getHits(), '_id'));
+    }
 }
 
 final class Person

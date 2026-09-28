@@ -29,6 +29,7 @@ Check these if your code relied on them:
 | geo distance sort defaulted to farthest first | closest first (`order(SortBuilder::DESC)` for the old order) |
 | `termQuery('active', true)` sent `"1"` | sends `true`; numbers are sent as numbers |
 | `bool` sent `mustNot` | sends `must_not` |
+| `sort` was one merged object (`{"price":"desc","_script":…}`), duplicate keys lost | a list of sort objects in the order added |
 | `percentiles` without `percents()` returned the 0th percentile | Elasticsearch default set |
 | sub-aggregations under `terms`/`histogram` were dropped | they are sent |
 | `subAggregation()` on a metric (avg, sum, stats, …) was silently ignored | throws `LogicException` |

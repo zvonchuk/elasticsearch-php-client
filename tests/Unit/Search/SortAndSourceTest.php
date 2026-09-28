@@ -46,7 +46,7 @@ final class SortAndSourceTest extends TestCase
 
         self::assertRenders(
             '{"query":{"term":{"status":{"value":"active"}}},"aggregations":{"avg_price":{"avg":{"field":"price"}}},'
-            . '"size":5,"from":20,"_source":{"includes":["id","title"],"excludes":["body"]},"sort":{"price":"desc"},'
+            . '"size":5,"from":20,"_source":{"includes":["id","title"],"excludes":["body"]},"sort":[{"price":"desc"}],'
             . '"search_after":[100,"x"]}',
             $source->getQuery(),
         );
@@ -63,5 +63,20 @@ final class SortAndSourceTest extends TestCase
     {
         self::assertTrue((new SearchSourceBuilder())->explain()->toArray()['explain']);
         self::assertArrayNotHasKey('explain', (new SearchSourceBuilder())->toArray());
+    }
+
+    public function testEverySortIsSentInOrder(): void
+    {
+        $source = (new SearchSourceBuilder())
+            ->sort(SortBuilders::geoDistanceSort('home', 40.4, 49.8))
+            ->sort(SortBuilders::geoDistanceSort('work', 40.3, 49.9))
+            ->sort(SortBuilders::fieldSort('price')->order(SortBuilder::ASC))
+            ->sort(SortBuilders::fieldSort('price'));
+
+        self::assertRenders(
+            '{"size":10,"from":0,"sort":[{"_geo_distance":{"home":{"lat":40.4,"lon":49.8},"order":"asc","unit":"m"}},'
+            . '{"_geo_distance":{"work":{"lat":40.3,"lon":49.9},"order":"asc","unit":"m"}},{"price":"asc"},{"price":"desc"}]}',
+            $source->toArray(),
+        );
     }
 }

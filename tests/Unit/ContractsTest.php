@@ -61,7 +61,7 @@ final class ContractsTest extends TestCase
 
         self::assertRenders(
             '{"query":{"bool":{"should":[{"match_none":{}}]}},"aggregations":{"f":{"filter":{"match_none":{}},'
-            . '"aggregations":{"max_price":{"max":{"field":"price"}}}}},"size":10,"from":0,"sort":{"_score":"desc"}}',
+            . '"aggregations":{"max_price":{"max":{"field":"price"}}}}},"size":10,"from":0,"sort":[{"_score":"desc"}]}',
             $source->toArray(),
         );
         self::assertRenders('{"index":"p","body":{"query":{"match_none":{}}}}', (new CountRequest('p'))->query($query)->toArray());

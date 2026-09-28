@@ -133,7 +133,7 @@ class SearchSourceBuilder
             $body['_source']['includes'] = $this->includeFields;
         }
         if ($this->sort !== []) {
-            $body['sort'] = array_merge(...array_map(static fn (SortInterface $sort): array => $sort->toArray(), $this->sort));
+            $body['sort'] = array_map(static fn (SortInterface $sort): array => $sort->toArray(), $this->sort);
         }
         if ($this->excludeFields !== []) {
             $body['_source']['excludes'] = $this->excludeFields;

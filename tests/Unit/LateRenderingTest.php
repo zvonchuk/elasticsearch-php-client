@@ -46,7 +46,7 @@ final class LateRenderingTest extends TestCase
         $agg->field('price');
 
         self::assertRenders(
-            '{"aggregations":{"avg_price":{"avg":{"field":"price"}}},"size":10,"from":0,"sort":{"price":"asc"}}',
+            '{"aggregations":{"avg_price":{"avg":{"field":"price"}}},"size":10,"from":0,"sort":[{"price":"asc"}]}',
             $source->getQuery(),
         );
     }
