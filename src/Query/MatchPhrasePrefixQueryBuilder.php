@@ -1,25 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class MatchPhrasePrefixQueryBuilder extends QueryBuilder
 {
-    private string $field;
-    private string $value;
-
-    public function __construct(string $field, string $value)
+    public function __construct(private readonly string $field, private readonly string $value)
     {
-        $this->name = 'match_phrase_prefix';
-        $this->field = $field;
-        $this->value = $value;
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        return [
-            $this->name => [
-                $this->field => $this->value
-            ]
-        ];
+        return ['match_phrase_prefix' => [$this->field => $this->value]];
     }
 }

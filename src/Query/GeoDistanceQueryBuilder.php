@@ -1,38 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class GeoDistanceQueryBuilder extends QueryBuilder
 {
-    private string $field;
     private ?string $distance = null;
+    /** @var array{lat: float, lon: float}|null */
     private ?array $point = null;
 
-    public function __construct(string $field)
+    public function __construct(private readonly string $field)
     {
-        $this->name = 'geo_distance';
-        $this->field = $field;
     }
 
-    public function distance(string $distance): GeoDistanceQueryBuilder
+    public function distance(string $distance): static
     {
         $this->distance = $distance;
         return $this;
     }
 
-    public function point(float $lat, float $lon): GeoDistanceQueryBuilder
+    public function point(float $lat, float $lon): static
     {
         $this->point = ['lat' => $lat, 'lon' => $lon];
         return $this;
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        return [
-            $this->name => [
-                'distance' => $this->distance,
-                $this->field => $this->point,
-            ]
-        ];
+        return ['geo_distance' => ['distance' => $this->distance, $this->field => $this->point]];
     }
 }

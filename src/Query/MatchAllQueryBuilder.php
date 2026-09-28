@@ -1,18 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class MatchAllQueryBuilder extends QueryBuilder
 {
-    public function __construct()
+    public function toArray(): array
     {
-        $this->name = 'match_all';
-    }
-
-    public function getSource()
-    {
-        return [
-            $this->name => new \stdClass()
-        ];
+        return ['match_all' => new \stdClass()];
     }
 }

@@ -1,105 +1,116 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Zvonchuk\Elastic\Search\Builder;
 
-
-use Zvonchuk\Elastic\Query\QueryBuilder;
-use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
-use Zvonchuk\Elastic\Search\Sort\SortBuilder;
+use Zvonchuk\Elastic\Query\QueryInterface;
+use Zvonchuk\Elastic\Search\Aggregations\AggregationInterface;
+use Zvonchuk\Elastic\Search\Sort\SortInterface;
 
 class SearchSourceBuilder
 {
-    private ?QueryBuilder $query = null;
-    /** @var AggregationBuilder[] */
+    private ?QueryInterface $query = null;
+    /** @var list<AggregationInterface> */
     private array $aggregations = [];
-    /** @var SortBuilder[] */
+    /** @var list<SortInterface> */
     private array $sort = [];
     private int $from = 0;
     private int $size = 10;
+    /** @var list<string> */
     private array $includeFields = [];
+    /** @var list<string> */
     private array $excludeFields = [];
+    /** @var list<mixed> */
     private array $searchAfter = [];
 
-    public function include(array $includeFields)
-    {
-        $this->includeFields = $includeFields;
-        return $this;
-    }
-
-    public function exclude(array $excludeFields)
-    {
-        $this->excludeFields = $excludeFields;
-        return $this;
-    }
-
-    public function searchAfter(array $searchAfter)
-    {
-        $this->searchAfter = $searchAfter;
-        return $this;
-    }
-
-    public function query(QueryBuilder $query)
+    public function query(QueryInterface $query): static
     {
         $this->query = $query;
         return $this;
     }
 
-    public function sort(SortBuilder $sort)
-    {
-        $this->sort[] = $sort;
-        return $this;
-    }
-
-    public function aggregation(AggregationBuilder $aggregation)
+    public function aggregation(AggregationInterface $aggregation): static
     {
         $this->aggregations[] = $aggregation;
         return $this;
     }
 
-    public function from(int $from)
+    public function sort(SortInterface $sort): static
+    {
+        $this->sort[] = $sort;
+        return $this;
+    }
+
+    public function from(int $from): static
     {
         $this->from = $from;
         return $this;
     }
 
-    public function size(int $size)
+    public function size(int $size): static
     {
         $this->size = $size;
         return $this;
     }
 
-    public function getQuery()
+    /** @param list<string> $includeFields */
+    public function include(array $includeFields): static
     {
-        if ($this->query instanceof QueryBuilder) {
-            $return['query'] = $this->query->getSource();
-        }
+        $this->includeFields = $includeFields;
+        return $this;
+    }
 
-        if (count($this->aggregations)) {
-            $return['aggregations'] = array_merge(
-                ...array_map(fn (AggregationBuilder $aggregation) => $aggregation->getSource(), $this->aggregations),
+    /** @param list<string> $excludeFields */
+    public function exclude(array $excludeFields): static
+    {
+        $this->excludeFields = $excludeFields;
+        return $this;
+    }
+
+    /** @param list<mixed> $searchAfter */
+    public function searchAfter(array $searchAfter): static
+    {
+        $this->searchAfter = $searchAfter;
+        return $this;
+    }
+
+    /** @return array<string, mixed> the search request body */
+    public function toArray(): array
+    {
+        $body = [];
+        if ($this->query !== null) {
+            $body['query'] = $this->query->toArray();
+        }
+        if ($this->aggregations !== []) {
+            $body['aggregations'] = array_merge(
+                ...array_map(static fn (AggregationInterface $aggregation): array => $aggregation->toArray(), $this->aggregations),
             );
         }
-
-        $return['size'] = $this->size;
-        $return['from'] = $this->from;
-
-        if (count($this->includeFields) > 0) {
-            $return['_source']['includes'] = $this->includeFields;
+        $body['size'] = $this->size;
+        $body['from'] = $this->from;
+        if ($this->includeFields !== []) {
+            $body['_source']['includes'] = $this->includeFields;
+        }
+        if ($this->sort !== []) {
+            $body['sort'] = array_merge(...array_map(static fn (SortInterface $sort): array => $sort->toArray(), $this->sort));
+        }
+        if ($this->excludeFields !== []) {
+            $body['_source']['excludes'] = $this->excludeFields;
+        }
+        if ($this->searchAfter !== []) {
+            $body['search_after'] = $this->searchAfter;
         }
 
-        if (count($this->sort) > 0) {
-            $return['sort'] = array_merge(...array_map(fn (SortBuilder $sort) => $sort->getSource(), $this->sort));
-        }
+        return $body;
+    }
 
-        if (count($this->excludeFields) > 0) {
-            $return['_source']['excludes'] = $this->excludeFields;
-        }
-
-        if (count($this->searchAfter) > 0) {
-            $return['search_after'] = $this->searchAfter;
-        }
-
-        return $return;
+    /**
+     * @deprecated since 1.0, use toArray(); will be removed in 2.0
+     * @return array<string, mixed>
+     */
+    public function getQuery(): array
+    {
+        return $this->toArray();
     }
 }

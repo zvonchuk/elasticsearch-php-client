@@ -1,40 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations\Bucket;
 
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
 
 class GeoHashGridAggregationBuilder extends AggregationBuilder
 {
-    private int $_precision;
-    private string $field;
+    private ?string $field = null;
+    private ?int $precision = null;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getSource()
-    {
-        return $this->withSubAggregations([
-            $this->name => [
-                'geohash_grid' => [
-                    'field' => $this->field,
-                    'precision' => $this->_precision
-                ]
-            ]
-        ]);
-    }
-
-    public function field(string $field): self
+    public function field(string $field): static
     {
         $this->field = $field;
         return $this;
     }
 
-    public function precision(int $precision): self
+    public function precision(int $precision): static
     {
-        $this->_precision = $precision;
+        $this->precision = $precision;
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return $this->render(['geohash_grid' => ['field' => $this->field, 'precision' => $this->precision]]);
     }
 }

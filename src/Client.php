@@ -1,7 +1,8 @@
 <?php
 
-namespace Zvonchuk\Elastic;
+declare(strict_types=1);
 
+namespace Zvonchuk\Elastic;
 
 use Elasticsearch\ClientBuilder;
 use Zvonchuk\Elastic\Core\BulkRequest;
@@ -12,73 +13,78 @@ use Zvonchuk\Elastic\Core\GetRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Core\UpdateRequest;
+use Zvonchuk\Elastic\Indices\Indices;
 use Zvonchuk\Elastic\Search\CountResponse;
 use Zvonchuk\Elastic\Search\SearchResponse;
 
 final class Client
 {
-    private static $instance;
-    private static $hosts;
+    private static ?Client $instance = null;
     private \Elasticsearch\Client $elastic;
 
+    /** @param list<string|array<string, mixed>> $hosts */
     private function __construct(array $hosts)
     {
         $this->elastic = ClientBuilder::create()->setHosts($hosts)->build();
     }
 
+    /** @param list<string|array<string, mixed>> $hosts */
     public static function getInstance(array $hosts): Client
     {
-        if (is_null(static::$instance)) {
-            static::$instance = new Client($hosts);
+        if (self::$instance === null) {
+            self::$instance = new Client($hosts);
         }
 
-        return static::$instance;
+        return self::$instance;
     }
 
-    public function count(CountRequest $request)
+    public function count(CountRequest $request): CountResponse
     {
-        $response = $this->elastic->count($request->getSource());
-        return new CountResponse($response);
+        return new CountResponse($this->elastic->count($request->toArray()));
     }
 
-    public function index(IndexRequest $request)
+    /** @return array<string, mixed> */
+    public function index(IndexRequest $request): array
     {
-        return $this->elastic->index($request->getSource());
+        return $this->elastic->index($request->toArray());
     }
 
     public function search(SearchRequest $request): SearchResponse
     {
-        $response = $this->elastic->search($request->getSource());
-        return new SearchResponse($response);
+        return new SearchResponse($this->elastic->search($request->toArray()));
     }
 
-    public function update(UpdateRequest $request)
+    /** @return array<string, mixed> */
+    public function update(UpdateRequest $request): array
     {
-        return $this->elastic->update($request->getSource());
+        return $this->elastic->update($request->toArray());
     }
 
-    public function delete(DeleteRequest $request)
+    /** @return array<string, mixed> */
+    public function delete(DeleteRequest $request): array
     {
-        return $this->elastic->delete($request->getSource());
+        return $this->elastic->delete($request->toArray());
     }
 
-    public function get(GetRequest $request)
+    /** @return array<string, mixed> */
+    public function get(GetRequest $request): array
     {
-        return $this->elastic->get($request->getSource());
+        return $this->elastic->get($request->toArray());
     }
 
-    public function exists(ExistsRequest $request)
+    public function exists(ExistsRequest $request): bool
     {
-        return $this->elastic->exists($request->getSource());
+        return $this->elastic->exists($request->toArray());
     }
 
-    public function bulk(BulkRequest $request)
+    /** @return array<string, mixed> */
+    public function bulk(BulkRequest $request): array
     {
-        return $this->elastic->bulk($request->getSource());
+        return $this->elastic->bulk($request->toArray());
     }
 
-    public function indices()
+    public function indices(): Indices
     {
-        return new Indices\Indices($this->elastic);
+        return new Indices($this->elastic);
     }
 }

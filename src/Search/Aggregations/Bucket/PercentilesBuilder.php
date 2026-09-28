@@ -1,58 +1,54 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations\Bucket;
 
 use Zvonchuk\Elastic\Search\Aggregations\MetricAggregationBuilder;
 
+/**
+ * A metric aggregation; kept in the Bucket namespace for backward compatibility.
+ */
 class PercentilesBuilder extends MetricAggregationBuilder
 {
-    private string $field;
-    private $_percents = 0;
-    private $_compression = 100;
-    private $_keyed = true;
+    private ?string $field = null;
+    /** @var list<int|float>|int */
+    private array|int $percents = 0;
+    private int|float $compression = 100;
+    private bool $keyed = true;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getSource()
-    {
-        return [
-            $this->name => [
-                'percentiles' => [
-                    'field' => $this->field,
-                    'percents' => $this->_percents,
-                    'tdigest' => [
-                        'compression' => $this->_compression
-                    ],
-                    'keyed' => $this->_keyed,
-                ]
-            ]
-        ];
-    }
-
-    public function percents(array $percents): PercentilesBuilder
-    {
-        $this->_percents = $percents;
-        return $this;
-    }
-
-    public function compression($compression): PercentilesBuilder
-    {
-        $this->_compression = $compression;
-        return $this;
-    }
-
-    public function keyed(bool $keyed): PercentilesBuilder
-    {
-        $this->_keyed = $keyed;
-        return $this;
-    }
-
-    public function field(string $field): PercentilesBuilder
+    public function field(string $field): static
     {
         $this->field = $field;
         return $this;
+    }
+
+    /** @param list<int|float> $percents */
+    public function percents(array $percents): static
+    {
+        $this->percents = $percents;
+        return $this;
+    }
+
+    public function compression(int|float $compression): static
+    {
+        $this->compression = $compression;
+        return $this;
+    }
+
+    public function keyed(bool $keyed): static
+    {
+        $this->keyed = $keyed;
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return $this->render(['percentiles' => [
+            'field' => $this->field,
+            'percents' => $this->percents,
+            'tdigest' => ['compression' => $this->compression],
+            'keyed' => $this->keyed,
+        ]]);
     }
 }

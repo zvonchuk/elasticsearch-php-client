@@ -1,21 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Indices;
 
 use Zvonchuk\Elastic\Core\Request;
 
 class RefreshRequest extends Request
 {
-    public function __construct(string $indice)
+    public function toArray(): array
     {
-        $this->indice = $indice;
+        return ['index' => $this->indice];
     }
-
-    public function getSource(): array
-    {
-        return [
-            'index' => $this->indice
-        ];
-    }
-
 }

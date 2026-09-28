@@ -1,58 +1,58 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Core;
 
-class BulkRequest extends Request
+class BulkRequest
 {
-    private array $request = [];
+    /** @var list<array<string, mixed>> */
+    private array $body = [];
 
-    public function add(Request $request)
+    public function add(IndexRequest|UpdateRequest|DeleteRequest $request): static
     {
+        $action = ['_index' => $request->getIndex()];
+
         if ($request instanceof IndexRequest) {
-            $action = ["_index" => $request->indice];
-            if ($request->id !== null) {
-                $action["_id"] = $request->id;
+            if ($request->getId() !== null) {
+                $action['_id'] = $request->getId();
             }
-            $this->request[] = ["index" => $action];
+            $this->body[] = ['index' => $action];
+            $this->body[] = $request->getDocument();
 
-            $this->request[] = $request->source;
+            return $this;
         }
 
-        if ($request instanceof DeleteRequest) {
-            $this->request[] = [
-                "delete" => [
-                    "_index" => $request->indice,
-                    "_id" => $request->requireId($request->id)
-                ]
-            ];
-        }
-
+        $action['_id'] = $request->toArray()['id'];
         if ($request instanceof UpdateRequest) {
-            $this->request[] = [
-                "update" => [
-                    "_index" => $request->indice,
-                    "_id" => $request->requireId($request->id)
-                ]
-            ];
+            $this->body[] = ['update' => $action];
+            $this->body[] = ['doc' => $request->getDocument()];
 
-            $this->request[] = [
-                "doc" => $request->source
-            ];
+            return $this;
         }
+
+        $this->body[] = ['delete' => $action];
 
         return $this;
     }
 
     public function isEmpty(): bool
     {
-        return $this->request === [];
+        return $this->body === [];
     }
 
+    /** @return array{body: list<array<string, mixed>>} */
+    public function toArray(): array
+    {
+        return ['body' => $this->body];
+    }
+
+    /**
+     * @deprecated since 1.0, use toArray(); will be removed in 2.0
+     * @return array{body: list<array<string, mixed>>}
+     */
     public function getSource(): array
     {
-        return [
-            'body' => $this->request
-        ];
+        return $this->toArray();
     }
-
 }

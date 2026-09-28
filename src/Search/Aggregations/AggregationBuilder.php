@@ -1,29 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations;
 
-abstract class AggregationBuilder
+abstract class AggregationBuilder implements AggregationInterface
 {
-    protected string $name;
-    /** @var AggregationBuilder[] */
+    /** @var list<AggregationInterface> */
     protected array $aggregations = [];
-    abstract public function getSource();
 
-    public function subAggregation(AggregationBuilder $subAggregation): AggregationBuilder
+    public function __construct(protected readonly string $name)
+    {
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /** @return array<string, mixed> */
+    abstract public function toArray(): array;
+
+    /**
+     * @deprecated since 1.0, use toArray(); will be removed in 2.0
+     * @return array<string, mixed>
+     */
+    public function getSource(): array
+    {
+        return $this->toArray();
+    }
+
+    public function subAggregation(AggregationInterface $subAggregation): static
     {
         $this->aggregations[] = $subAggregation;
-
         return $this;
     }
 
     /**
-     * Adds the sub-aggregations, if any, next to the aggregation body.
+     * Wraps the aggregation body under its name and adds the sub-aggregations, if any.
+     *
+     * @param array<string, mixed> $body
+     * @return array<string, mixed>
      */
-    protected function withSubAggregations(array $source): array
+    protected function render(array $body): array
     {
-        if ($this->aggregations) {
+        $source = [$this->name => $body];
+        if ($this->aggregations !== []) {
             $source[$this->name]['aggregations'] = array_merge(
-                ...array_map(fn (AggregationBuilder $aggregation) => $aggregation->getSource(), $this->aggregations),
+                ...array_map(static fn (AggregationInterface $aggregation): array => $aggregation->toArray(), $this->aggregations),
             );
         }
 

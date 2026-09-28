@@ -1,55 +1,47 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Zvonchuk\Elastic\Query;
 
 class BoolQueryBuilder extends QueryBuilder
 {
-    private array $mustClauses = [];
-    private array $mustNotClauses = [];
-    private array $filterClauses = [];
-    private array $shouldClauses = [];
+    /** @var array<string, list<QueryInterface>> Elasticsearch clause name => queries */
+    private array $clauses = ['must' => [], 'must_not' => [], 'filter' => [], 'should' => []];
 
-    public function __construct()
+    public function must(QueryInterface $query): static
     {
-        $this->name = 'bool';
-    }
-
-    public function must(QueryBuilder $query)
-    {
-        $this->mustClauses[] = $query;
+        $this->clauses['must'][] = $query;
         return $this;
     }
 
-    public function mustNot(QueryBuilder $query)
+    public function mustNot(QueryInterface $query): static
     {
-        $this->mustNotClauses[] = $query;
+        $this->clauses['must_not'][] = $query;
         return $this;
     }
 
-    public function filter(QueryBuilder $query)
+    public function filter(QueryInterface $query): static
     {
-        $this->filterClauses[] = $query;
+        $this->clauses['filter'][] = $query;
         return $this;
     }
 
-    public function should(QueryBuilder $query)
+    public function should(QueryInterface $query): static
     {
-        $this->shouldClauses[] = $query;
+        $this->clauses['should'][] = $query;
         return $this;
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        $clauses = [];
-        foreach (['must' => 'must', 'must_not' => 'mustNot', 'filter' => 'filter', 'should' => 'should'] as $key => $clause) {
-            if (count($this->{$clause . 'Clauses'})) {
-                $clauses[$key] = array_map(fn (QueryBuilder $query) => $query->getSource(), $this->{$clause . 'Clauses'});
+        $body = [];
+        foreach ($this->clauses as $clause => $queries) {
+            if ($queries !== []) {
+                $body[$clause] = array_map(static fn (QueryInterface $query): array => $query->toArray(), $queries);
             }
         }
 
-        $query = empty($clauses) ? new \stdClass() : $clauses;
-        return [$this->name => $query];
+        return ['bool' => $body === [] ? new \stdClass() : $body];
     }
-
 }

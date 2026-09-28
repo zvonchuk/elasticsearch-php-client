@@ -1,26 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations\Filter;
 
-use Zvonchuk\Elastic\Query\QueryBuilder;
+use Zvonchuk\Elastic\Query\QueryInterface;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
 
 class FilterBuilder extends AggregationBuilder
 {
-    private QueryBuilder $filter;
-
-    public function __construct(string $name, QueryBuilder $filter)
+    public function __construct(string $name, private readonly QueryInterface $filter)
     {
-        $this->name = $name;
-        $this->filter = $filter;
+        parent::__construct($name);
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        return $this->withSubAggregations([
-            $this->name => [
-                'filter' => $this->filter->getSource(),
-            ]
-        ]);
+        return $this->render(['filter' => $this->filter->toArray()]);
     }
 }

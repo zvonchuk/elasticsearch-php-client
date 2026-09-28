@@ -1,33 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations\Metrics;
 
 use Zvonchuk\Elastic\Search\Aggregations\MetricAggregationBuilder;
 
 class GeoCentroidBuilder extends MetricAggregationBuilder
 {
-    private string $field;
+    private ?string $field = null;
 
-    public function __construct(string $name)
+    public function field(string $field): static
     {
-        $this->name = $name;
+        $this->field = $field;
+        return $this;
     }
 
-	public function getSource()
-	{
-		return [
-			$this->name => [
-				'geo_centroid' => [
-					'field' => $this->field
-				]
-			]
-		];
-	}
-
-	public function field(string $field): GeoCentroidBuilder
-	{
-		$this->field = $field;
-		return $this;
-	}
-
+    public function toArray(): array
+    {
+        return $this->render(['geo_centroid' => ['field' => $this->field]]);
+    }
 }

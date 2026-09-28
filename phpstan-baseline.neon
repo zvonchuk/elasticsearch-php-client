@@ -1,7 +1,1 @@
-parameters:
-	ignoreErrors:
-		-
-			message: '#^Access to an undefined property Zvonchuk\\Elastic\\Search\\Aggregations\\AggregationBuilders\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/Search/Aggregations/AggregationBuilders.php
+parameters: {}

@@ -1,33 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations\Metrics;
 
 use Zvonchuk\Elastic\Search\Aggregations\MetricAggregationBuilder;
 
 class AvgBuilder extends MetricAggregationBuilder
 {
-    private string $field;
+    private ?string $field = null;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getSource()
-    {
-        return [
-            $this->name => [
-                'avg' => [
-                    'field' => $this->field
-                ]
-            ]
-        ];
-    }
-
-    public function field(string $field): AvgBuilder
+    public function field(string $field): static
     {
         $this->field = $field;
         return $this;
     }
 
+    public function toArray(): array
+    {
+        return $this->render(['avg' => ['field' => $this->field]]);
+    }
 }

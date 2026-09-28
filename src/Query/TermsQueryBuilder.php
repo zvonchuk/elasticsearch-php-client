@@ -1,25 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class TermsQueryBuilder extends QueryBuilder
 {
-    private string $field;
-    private array $values;
-
-    public function __construct(string $field, array $values)
+    /** @param list<int|float|bool|string> $values */
+    public function __construct(private readonly string $field, private readonly array $values)
     {
-        $this->name = 'terms';
-        $this->field = $field;
-        $this->values = $values;
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        return [
-            $this->name => [
-                $this->field => $this->values
-            ]
-        ];
+        return ['terms' => [$this->field => $this->values]];
     }
 }

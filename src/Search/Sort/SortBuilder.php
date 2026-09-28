@@ -1,24 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Sort;
 
-abstract class SortBuilder
+abstract class SortBuilder implements SortInterface
 {
-    public const DESC = "desc";
-    public const ASC = "asc";
-    protected ?string $field = null;
-    protected ?string $order = self::DESC;
+    public const DESC = 'desc';
+    public const ASC = 'asc';
 
-    public function __construct(string $field)
-    {
-        $this->field = $field;
-    }
+    protected string $order = self::DESC;
 
-    public function order(string $order)
+    public function order(string $order): static
     {
         $this->order = $order;
         return $this;
     }
 
-    abstract public function getSource();
+    /** @return array<string, mixed> */
+    abstract public function toArray(): array;
+
+    /**
+     * @deprecated since 1.0, use toArray(); will be removed in 2.0
+     * @return array<string, mixed>
+     */
+    public function getSource(): array
+    {
+        return $this->toArray();
+    }
 }

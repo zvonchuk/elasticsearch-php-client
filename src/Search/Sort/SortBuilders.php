@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Sort;
 
-class SortBuilders
+final class SortBuilders
 {
     public static function scriptSort(string $script, string $type): ScriptSort
     {

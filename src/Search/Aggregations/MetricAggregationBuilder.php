@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations;
 
 /**
@@ -7,7 +9,7 @@ namespace Zvonchuk\Elastic\Search\Aggregations;
  */
 abstract class MetricAggregationBuilder extends AggregationBuilder
 {
-    public function subAggregation(AggregationBuilder $subAggregation): AggregationBuilder
+    public function subAggregation(AggregationInterface $subAggregation): static
     {
         throw new \LogicException(sprintf(
             'Metric aggregation "%s" cannot have sub-aggregations; put them under a bucket aggregation instead.',

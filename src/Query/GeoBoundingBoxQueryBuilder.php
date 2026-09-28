@@ -1,82 +1,68 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class GeoBoundingBoxQueryBuilder extends QueryBuilder
 {
-    private string $field;
-    private array $topLeft = [];
-    private array $topRight = [];
-    private array $bottomRight = [];
-    private array $bottomLeft = [];
+    private const CORNERS = ['top_left', 'top_right', 'bottom_right', 'bottom_left'];
 
-    public function __construct(string $field)
+    /** @var array<string, array<string, float>|string> */
+    private array $corners = [];
+
+    public function __construct(private readonly string $field)
     {
-        $this->name = 'geo_bounding_box';
-        $this->field = $field;
     }
 
+    /** @param array<string, float>|string $topLeft point: ['lat' => .., 'lon' => ..], "lat,lon" or geohash */
+    public function topLeft(array|string $topLeft): static
+    {
+        $this->corners['top_left'] = $topLeft;
+        return $this;
+    }
+
+    /** @param array<string, float>|string $topRight */
+    public function topRight(array|string $topRight): static
+    {
+        $this->corners['top_right'] = $topRight;
+        return $this;
+    }
+
+    /** @param array<string, float>|string $bottomRight */
+    public function bottomRight(array|string $bottomRight): static
+    {
+        $this->corners['bottom_right'] = $bottomRight;
+        return $this;
+    }
+
+    /** @param array<string, float>|string $bottomLeft */
+    public function bottomLeft(array|string $bottomLeft): static
+    {
+        $this->corners['bottom_left'] = $bottomLeft;
+        return $this;
+    }
+
+    /**
+     * Renders a geo_bounding_box query from the recognised corner keys of $location, ignoring the rest.
+     *
+     * @param array<string, mixed> $location
+     * @return array<string, mixed>
+     */
     public function bounding(array $location): array
     {
-        $bounding = [];
-        $possibleKeys = ['top_right', 'top_left', 'bottom_right', 'bottom_left'];
-        foreach ($location as $key => $value) {
-            if (in_array($key, $possibleKeys)) {
-                $bounding[$key] = $value;
+        return ['geo_bounding_box' => [$this->field => array_intersect_key($location, array_flip(self::CORNERS))]];
+    }
+
+    public function toArray(): array
+    {
+        $corners = [];
+        foreach (self::CORNERS as $corner) {
+            if (isset($this->corners[$corner])) {
+                $corners[$corner] = $this->corners[$corner];
             }
         }
 
-        return [
-            'geo_bounding_box' => [
-                $this->field => $bounding
-            ]
-        ];
-    }
-
-    public function topRight(array $topRight): self
-    {
-        $this->topRight = $topRight;
-        return $this;
-    }
-
-    public function bottomLeft(array $bottomLeft): self
-    {
-        $this->bottomLeft = $bottomLeft;
-        return $this;
-    }
-
-    public function topLeft(array $topLeft): self
-    {
-        $this->topLeft = $topLeft;
-        return $this;
-    }
-
-    public function bottomRight(array $bottomRight): self
-    {
-        $this->bottomRight = $bottomRight;
-        return $this;
-    }
-
-    public function getSource()
-    {
-        $clauses = [
-            'top_right' => 'topRight',
-            'top_left' => 'topLeft',
-            'bottom_right' => 'bottomRight',
-            'bottom_left' => 'bottomLeft'
-        ];
-
-        $query = [];
-        foreach ($clauses as $key => $variable) {
-            if (count($this->{$variable}) > 0) {
-                $query[$key] = $this->{$variable};
-            }
-        }
-
-        return [
-            $this->name => [
-                $this->field => $query
-            ]
-        ];
+        return ['geo_bounding_box' => [$this->field => $corners]];
     }
 }

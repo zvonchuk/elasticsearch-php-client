@@ -1,56 +1,51 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class RangeQueryBuilder extends QueryBuilder
 {
-    private string $field;
     /** @var array<string, int|float|string> */
     private array $bounds = [];
 
-    public function __construct(string $field)
+    public function __construct(private readonly string $field)
     {
-        $this->name = 'range';
-        $this->field = $field;
     }
 
-    public function gte(int|float|string|\DateTimeInterface $gte): self
+    public function gte(int|float|string|\DateTimeInterface $gte): static
     {
         return $this->bound('gte', $gte);
     }
 
-    public function gt(int|float|string|\DateTimeInterface $gt): self
+    public function gt(int|float|string|\DateTimeInterface $gt): static
     {
         return $this->bound('gt', $gt);
     }
 
-    public function lte(int|float|string|\DateTimeInterface $lte): self
+    public function lte(int|float|string|\DateTimeInterface $lte): static
     {
         return $this->bound('lte', $lte);
     }
 
-    public function lt(int|float|string|\DateTimeInterface $lt): self
+    public function lt(int|float|string|\DateTimeInterface $lt): static
     {
         return $this->bound('lt', $lt);
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        $query = [];
+        $bounds = [];
         foreach (['gte', 'gt', 'lte', 'lt'] as $clause) {
             if (isset($this->bounds[$clause])) {
-                $query[$clause] = $this->bounds[$clause];
+                $bounds[$clause] = $this->bounds[$clause];
             }
         }
 
-        return [
-            $this->name => [
-                $this->field => $query
-            ]
-        ];
+        return ['range' => [$this->field => $bounds]];
     }
 
-    private function bound(string $clause, int|float|string|\DateTimeInterface $value): self
+    private function bound(string $clause, int|float|string|\DateTimeInterface $value): static
     {
         $this->bounds[$clause] = $value instanceof \DateTimeInterface ? $value->format(\DateTimeInterface::ATOM) : $value;
         return $this;

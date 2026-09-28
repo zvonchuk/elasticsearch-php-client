@@ -1,23 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Query;
 
 class ExistsQueryBuilder extends QueryBuilder
 {
-    private string $field;
-
-    public function __construct(string $field)
+    public function __construct(private readonly string $field)
     {
-        $this->name = 'exists';
-        $this->field = $field;
     }
 
-    public function getSource()
+    public function toArray(): array
     {
-        return [
-            $this->name => [
-                "field" => $this->field
-            ]
-        ];
+        return ['exists' => ['field' => $this->field]];
     }
 }

@@ -1,47 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Search\Aggregations\Bucket;
+
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
 
 class HistogramBuilder extends AggregationBuilder
 {
-    private string $field;
-    private int $_interval = 0;
-    private int $_minDocCount = 0;
+    private ?string $field = null;
+    private int|float $interval = 0;
+    private int $minDocCount = 0;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getSource()
-    {
-        return $this->withSubAggregations([
-            $this->name => [
-                'histogram' => [
-                    'field' => $this->field,
-                    'interval' => $this->_interval,
-                    'min_doc_count' => $this->_minDocCount
-                ]
-            ]
-        ]);
-    }
-
-    public function minDocCount($minDocCount): self
-    {
-        $this->_minDocCount = $minDocCount;
-        return $this;
-    }
-
-    public function field(string $field): self
+    public function field(string $field): static
     {
         $this->field = $field;
         return $this;
     }
 
-    public function interval($interval): self
+    public function interval(int|float $interval): static
     {
-        $this->_interval = $interval;
+        $this->interval = $interval;
         return $this;
+    }
+
+    public function minDocCount(int $minDocCount): static
+    {
+        $this->minDocCount = $minDocCount;
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return $this->render(['histogram' => [
+            'field' => $this->field,
+            'interval' => $this->interval,
+            'min_doc_count' => $this->minDocCount,
+        ]]);
     }
 }

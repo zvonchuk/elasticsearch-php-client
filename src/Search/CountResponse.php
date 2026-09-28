@@ -1,20 +1,18 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Zvonchuk\Elastic\Search;
 
 class CountResponse
 {
-    private array $response = [];
-
-    public function __construct(array $response)
+    /** @param array<string, mixed> $response raw Elasticsearch count response */
+    public function __construct(private readonly array $response)
     {
-        $this->response = $response;
     }
 
     public function getCount(): int
     {
-        return $this->response['count'];
+        return (int) $this->response['count'];
     }
-
 }

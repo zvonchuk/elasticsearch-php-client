@@ -1,28 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Zvonchuk\Elastic\Core;
 
-class ExistsRequest extends Request
+class ExistsRequest extends DocumentRequest
 {
-    private ?string $id = null;
-
-    public function __construct(string $indice)
+    public function toArray(): array
     {
-        $this->indice = $indice;
+        return ['index' => $this->indice, 'id' => $this->requireId($this->id)];
     }
-
-    public function id(string $id)
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function getSource(): array
-    {
-        return [
-            'index' => $this->indice,
-            'id' => $this->requireId($this->id)
-        ];
-    }
-
 }
