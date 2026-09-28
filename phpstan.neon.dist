@@ -5,6 +5,3 @@ parameters:
     level: 1
     paths:
         - src
-    excludePaths:
-        # Fatal error on load (private property overrides a protected one); fixed in the next commits.
-        - src/Search/Aggregations/Filter/FilterBuilder.php

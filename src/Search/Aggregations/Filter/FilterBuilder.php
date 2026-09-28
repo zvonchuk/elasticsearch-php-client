@@ -8,7 +8,6 @@ use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilder;
 class FilterBuilder extends AggregationBuilder
 {
     private QueryBuilder $filter;
-    private ?array $aggregations = null;
 
     public function __construct(string $name, QueryBuilder $filter)
     {
@@ -18,22 +17,16 @@ class FilterBuilder extends AggregationBuilder
 
     public function getSource()
     {
-        return [
+        $return = [
             $this->name => [
                 'filter' => $this->filter->getSource(),
-                'aggregations' => $this->aggregations,
             ]
         ];
-    }
 
-    public function subAggregation(AggregationBuilder $subAggregation): AggregationBuilder
-    {
         if ($this->aggregations) {
-            $this->aggregations = array_merge($this->aggregations, $subAggregation->getSource());
-        } else {
-            $this->aggregations = $subAggregation->getSource();
+            $return[$this->name]['aggregations'] = $this->aggregations;
         }
 
-        return $this;
+        return $return;
     }
 }

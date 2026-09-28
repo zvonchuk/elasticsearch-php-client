@@ -8,6 +8,7 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\CountRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Query\QueryBuilders;
+use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
 
 final class SearchTest extends IntegrationTestCase
@@ -29,5 +30,22 @@ final class SearchTest extends IntegrationTestCase
         self::assertSame(1, $response->getTotal());
         self::assertSame('1', $response->getHits()[0]['_id']);
         self::assertSame(2, $client->count((new CountRequest($this->index))->query(QueryBuilders::matchAllQuery()))->getCount());
+    }
+
+    public function testFilterAggregationRunsOnTheCluster(): void
+    {
+        $this->seed([
+            '1' => ['status' => 'active', 'price' => 10],
+            '2' => ['status' => 'active', 'price' => 30],
+            '3' => ['status' => 'draft', 'price' => 99],
+        ], ['status' => ['type' => 'keyword'], 'price' => ['type' => 'integer']]);
+
+        $agg = AggregationBuilders::filter('active', QueryBuilders::termQuery('status', 'active'))
+            ->subAggregation(AggregationBuilders::avg('avg_price')->field('price'));
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->size(0)->aggregation($agg)));
+
+        self::assertSame(2, $response->getAggregations()['active']['doc_count']);
+        self::assertEqualsWithDelta(20.0, $response->getAggregations()['active']['avg_price']['value'], 0.001);
     }
 }
