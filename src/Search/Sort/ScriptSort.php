@@ -11,8 +11,13 @@ class ScriptSort extends SortBuilder
 
     public function __construct(string $script, string $type)
     {
-        if (!in_array($type, ['number', 'string'])) {
-            throw new Exception('Incorrect type');
+        if (!in_array($type, [self::NUMBER, self::STRING], true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Unknown script sort type "%s"; expected "%s" or "%s".',
+                $type,
+                self::NUMBER,
+                self::STRING,
+            ));
         }
 
         $this->script = $script;

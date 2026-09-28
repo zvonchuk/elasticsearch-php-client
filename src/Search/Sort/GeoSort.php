@@ -29,8 +29,12 @@ class GeoSort extends SortBuilder
     {
         $keys = ['in', 'yd', 'ft', 'km', 'NM', 'mm', 'cm', 'mi', 'm'];
 
-        if (!in_array($unit, $keys)) {
-            throw new Exception('Incorrect unit');
+        if (!in_array($unit, $keys, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Unknown distance unit "%s"; expected one of: %s.',
+                $unit,
+                implode(', ', $keys),
+            ));
         }
         $this->unit = $unit;
 

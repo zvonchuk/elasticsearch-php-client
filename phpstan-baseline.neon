@@ -11,15 +11,3 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: src/Search/Aggregations/AggregationBuilders.php
-
-		-
-			message: '#^Instantiated class Zvonchuk\\Elastic\\Search\\Sort\\Exception not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Search/Sort/GeoSort.php
-
-		-
-			message: '#^Instantiated class Zvonchuk\\Elastic\\Search\\Sort\\Exception not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Search/Sort/ScriptSort.php
