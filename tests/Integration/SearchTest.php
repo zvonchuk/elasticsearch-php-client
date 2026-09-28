@@ -8,11 +8,13 @@ use Zvonchuk\Elastic\Client;
 use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\CountRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
+use Zvonchuk\Elastic\Core\MultiSearchRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Query\MultiMatchQueryBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
+use Zvonchuk\Elastic\Search\MultiSearchException;
 use Zvonchuk\Elastic\Search\Sort\GeoSort;
 use Zvonchuk\Elastic\Search\Sort\SortBuilder;
 use Zvonchuk\Elastic\Search\Sort\SortBuilders;
@@ -361,6 +363,25 @@ final class SearchTest extends IntegrationTestCase
             ->documents(Person::class);
 
         self::assertEquals([new Person('Jahangir Asgarov', 1950)], $people);
+    }
+
+    public function testMultiSearchInOneRoundTrip(): void
+    {
+        $this->seed(['1' => ['tag' => 'a'], '2' => ['tag' => 'b']], ['tag' => ['type' => 'keyword']]);
+        $search = fn (string $index, string $tag) => (new SearchRequest($index))
+            ->source((new SearchSourceBuilder())->query(QueryBuilders::termQuery('tag', $tag)));
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+
+        $response = $client->msearch((new MultiSearchRequest())->add($search($this->index, 'a'))->add($search($this->index, 'b')));
+        self::assertSame(['1'], array_column($response->get(0)->getHits(), '_id'));
+        self::assertSame(['2'], array_column($response->get(1)->getHits(), '_id'));
+
+        $withMissingIndex = $client->msearch((new MultiSearchRequest())
+            ->add($search($this->index, 'a'))
+            ->add($search($this->index . '_missing', 'a')));
+        self::assertSame([1], array_keys($withMissingIndex->failures()));
+        $this->expectException(MultiSearchException::class);
+        $withMissingIndex->all();
     }
 }
 

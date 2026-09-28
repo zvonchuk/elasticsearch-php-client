@@ -11,10 +11,12 @@ use Zvonchuk\Elastic\Core\DeleteRequest;
 use Zvonchuk\Elastic\Core\ExistsRequest;
 use Zvonchuk\Elastic\Core\GetRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
+use Zvonchuk\Elastic\Core\MultiSearchRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Core\UpdateRequest;
 use Zvonchuk\Elastic\Indices\Indices;
 use Zvonchuk\Elastic\Search\CountResponse;
+use Zvonchuk\Elastic\Search\MultiSearchResponse;
 use Zvonchuk\Elastic\Search\SearchResponse;
 
 final class Client
@@ -52,6 +54,15 @@ final class Client
     public function search(SearchRequest $request): SearchResponse
     {
         return new SearchResponse($this->elastic->search($request->toArray()));
+    }
+
+    public function msearch(MultiSearchRequest $request): MultiSearchResponse
+    {
+        if ($request->isEmpty()) {
+            return new MultiSearchResponse(['responses' => []]);
+        }
+
+        return new MultiSearchResponse($this->elastic->msearch($request->toArray()));
     }
 
     /** @return array<string, mixed> */
