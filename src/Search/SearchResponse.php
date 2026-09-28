@@ -18,6 +18,30 @@ class SearchResponse
     }
 
     /**
+     * Each hit's source turned into an object of $class (see DocumentMapper).
+     *
+     * @template T of object
+     * @param class-string<T> $class
+     * @return list<T>
+     */
+    public function documents(string $class): array
+    {
+        return array_map(static fn (SearchHit $hit): object => DocumentMapper::map($class, $hit->source), $this->hits());
+    }
+
+    /**
+     * Each hit passed through $mapper, for mappings that need more than the source (id, score, matched queries).
+     *
+     * @template T
+     * @param callable(SearchHit): T $mapper
+     * @return list<T>
+     */
+    public function map(callable $mapper): array
+    {
+        return array_map($mapper, $this->hits());
+    }
+
+    /**
      * Raw hits as returned by Elasticsearch; prefer hits().
      *
      * @return list<array<string, mixed>>

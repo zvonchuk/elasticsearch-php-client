@@ -351,4 +351,22 @@ final class SearchTest extends IntegrationTestCase
         self::assertFalse($response->timedOut());
         self::assertIsInt($response->took());
     }
+
+    public function testDocumentsFromARealResponse(): void
+    {
+        $this->seed(['1' => ['full_name' => 'Jahangir Asgarov', 'birth_year' => 1950]], ['birth_year' => ['type' => 'integer']]);
+
+        $people = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search(new SearchRequest($this->index))
+            ->documents(Person::class);
+
+        self::assertEquals([new Person('Jahangir Asgarov', 1950)], $people);
+    }
+}
+
+final class Person
+{
+    public function __construct(public readonly string $fullName, public readonly int $birthYear)
+    {
+    }
 }
