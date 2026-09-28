@@ -6,7 +6,7 @@ use Zvonchuk\Elastic\Query\QueryBuilder;
 
 class CountRequest extends Request
 {
-    private QueryBuilder $query;
+    private ?QueryBuilder $query = null;
 
     public function __construct(string $indice)
     {
@@ -21,12 +21,12 @@ class CountRequest extends Request
 
     public function getSource(): array
     {
-        return [
-            'index' => $this->indice,
-            'body' => [
-                'query' => $this->query->getSource()
-            ]
-        ];
+        $request = ['index' => $this->indice];
+        if ($this->query !== null) {
+            $request['body'] = ['query' => $this->query->getSource()];
+        }
+
+        return $request;
     }
 
 }

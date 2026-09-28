@@ -4,17 +4,16 @@ namespace Zvonchuk\Elastic\Core;
 
 class BulkRequest extends Request
 {
-    private array $request;
+    private array $request = [];
 
     public function add(Request $request)
     {
         if ($request instanceof IndexRequest) {
-            $this->request[] = [
-                "index" => [
-                    "_index" => $request->indice,
-                    "_id" => $request->id
-                ]
-            ];
+            $action = ["_index" => $request->indice];
+            if ($request->id !== null) {
+                $action["_id"] = $request->id;
+            }
+            $this->request[] = ["index" => $action];
 
             $this->request[] = $request->source;
         }
@@ -23,7 +22,7 @@ class BulkRequest extends Request
             $this->request[] = [
                 "delete" => [
                     "_index" => $request->indice,
-                    "_id" => $request->id
+                    "_id" => $request->requireId($request->id)
                 ]
             ];
         }
@@ -32,7 +31,7 @@ class BulkRequest extends Request
             $this->request[] = [
                 "update" => [
                     "_index" => $request->indice,
-                    "_id" => $request->id
+                    "_id" => $request->requireId($request->id)
                 ]
             ];
 
@@ -42,6 +41,11 @@ class BulkRequest extends Request
         }
 
         return $this;
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->request === [];
     }
 
     public function getSource(): array

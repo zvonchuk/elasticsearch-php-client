@@ -4,8 +4,8 @@ namespace Zvonchuk\Elastic\Core;
 
 class UpdateRequest extends Request
 {
-    public string $id;
-    public array $source;
+    public ?string $id = null;
+    public array $source = [];
 
     public function __construct(string $indice)
     {
@@ -28,7 +28,7 @@ class UpdateRequest extends Request
     {
         return [
             'index' => $this->indice,
-            'id' => $this->id,
+            'id' => $this->requireId($this->id),
             'body' => [
                 'doc' => $this->source
             ]

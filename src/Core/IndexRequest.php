@@ -2,12 +2,10 @@
 
 namespace Zvonchuk\Elastic\Core;
 
-use Zvonchuk\Elastic\Query\QueryBuilder;
-
 class IndexRequest extends Request
 {
-    public string $id;
-    public array $source;
+    public ?string $id = null;
+    public array $source = [];
 
     public function __construct(string $indice)
     {
@@ -28,11 +26,13 @@ class IndexRequest extends Request
 
     public function getSource(): array
     {
-        return [
-            'index' => $this->indice,
-            'id' => $this->id,
-            'body' => $this->source
-        ];
+        $request = ['index' => $this->indice];
+        if ($this->id !== null) {
+            $request['id'] = $this->id;
+        }
+        $request['body'] = $this->source;
+
+        return $request;
     }
 
 }

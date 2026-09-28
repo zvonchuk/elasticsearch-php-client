@@ -4,7 +4,7 @@ namespace Zvonchuk\Elastic\Core;
 
 class ExistsRequest extends Request
 {
-    private string $id;
+    private ?string $id = null;
 
     public function __construct(string $indice)
     {
@@ -21,7 +21,7 @@ class ExistsRequest extends Request
     {
         return [
             'index' => $this->indice,
-            'id' => $this->id
+            'id' => $this->requireId($this->id)
         ];
     }
 

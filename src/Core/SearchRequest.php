@@ -11,6 +11,7 @@ class SearchRequest extends Request
     public function __construct(string $indice)
     {
         $this->indice = $indice;
+        $this->source = new SearchSourceBuilder();
     }
 
     public function source(SearchSourceBuilder $source)

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Zvonchuk\Elastic\Tests\Integration;
 
 use Zvonchuk\Elastic\Client;
+use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\CountRequest;
+use Zvonchuk\Elastic\Core\IndexRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
@@ -143,5 +145,21 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['on'], $find(true));
         self::assertSame(['off'], $find(false));
+    }
+
+    public function testDocumentsWithGeneratedIdsAndCountWithoutQuery(): void
+    {
+        $this->seed([]);
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+
+        $single = $client->index((new IndexRequest($this->index))->source(['title' => 'one']));
+        $bulk = $client->bulk((new BulkRequest())
+            ->add((new IndexRequest($this->index))->source(['title' => 'two']))
+            ->add((new IndexRequest($this->index))->source(['title' => 'three'])));
+        self::$elasticsearch->indices()->refresh(['index' => $this->index]);
+
+        self::assertNotEmpty($single['_id']);
+        self::assertFalse($bulk['errors']);
+        self::assertSame(3, $client->count(new CountRequest($this->index))->getCount());
     }
 }
