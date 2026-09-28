@@ -11,6 +11,16 @@ final class QueryBuilders
         return new BoolQueryBuilder();
     }
 
+    public static function disMaxQuery(): DisMaxQueryBuilder
+    {
+        return new DisMaxQueryBuilder();
+    }
+
+    public static function constantScoreQuery(QueryInterface $filter): ConstantScoreQueryBuilder
+    {
+        return new ConstantScoreQueryBuilder($filter);
+    }
+
     public static function matchAllQuery(): MatchAllQueryBuilder
     {
         return new MatchAllQueryBuilder();

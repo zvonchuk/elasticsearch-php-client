@@ -266,4 +266,20 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['in_name', 'in_description'], array_column($response->getHits(), '_id'));
     }
+
+    public function testDisMaxAndConstantScore(): void
+    {
+        $this->seed(['1' => ['tag' => 'a', 'year' => '1950']], ['tag' => ['type' => 'keyword'], 'year' => ['type' => 'keyword']]);
+        $client = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')]);
+        $score = fn ($query) => $client->search((new SearchRequest($this->index))->source(
+            (new SearchSourceBuilder())->query($query),
+        ))->getHits()[0]['_score'];
+
+        $constant = fn (float $boost) => QueryBuilders::constantScoreQuery(QueryBuilders::termQuery('tag', 'a'))->boost($boost);
+        self::assertEqualsWithDelta(3.0, $score($constant(3)), 0.0001);
+
+        $disMax = QueryBuilders::disMaxQuery()->add($constant(3))->add($constant(5));
+        self::assertEqualsWithDelta(5.0, $score($disMax), 0.0001, 'dis_max takes the best query');
+        self::assertEqualsWithDelta(5.3, $score($disMax->tieBreaker(0.1)), 0.0001, 'plus tie_breaker x the others');
+    }
 }
