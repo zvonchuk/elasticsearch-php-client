@@ -101,4 +101,21 @@ final class QueryBuildersTest extends TestCase
             QueryBuilders::boolQuery()->mustNot(QueryBuilders::termQuery('status', 'deleted'))->getSource(),
         );
     }
+
+    public function testRangeAcceptsNumbers(): void
+    {
+        self::assertRenders(
+            '{"range":{"price":{"gte":500.5,"lte":2000}}}',
+            QueryBuilders::rangeQuery('price')->gte(500.5)->lte(2000)->getSource(),
+        );
+    }
+
+    public function testRangeAcceptsDates(): void
+    {
+        $from = new \DateTimeImmutable('2026-01-01 00:00:00', new \DateTimeZone('Asia/Baku'));
+        self::assertRenders(
+            '{"range":{"created_at":{"gt":"2026-01-01T00:00:00+04:00"}}}',
+            QueryBuilders::rangeQuery('created_at')->gt($from)->getSource(),
+        );
+    }
 }

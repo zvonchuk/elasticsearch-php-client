@@ -111,4 +111,21 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['1'], array_column($response->getHits(), '_id'));
     }
+
+    public function testRangeWithNumericAndDateBounds(): void
+    {
+        $this->seed([
+            'cheap' => ['price' => 100, 'created_at' => '2026-03-01T10:00:00+04:00'],
+            'mid' => ['price' => 900.5, 'created_at' => '2026-06-01T10:00:00+04:00'],
+            'old' => ['price' => 950, 'created_at' => '2025-01-01T10:00:00+04:00'],
+        ], ['price' => ['type' => 'float'], 'created_at' => ['type' => 'date']]);
+
+        $query = QueryBuilders::boolQuery()
+            ->filter(QueryBuilders::rangeQuery('price')->gte(500)->lte(1000.0))
+            ->filter(QueryBuilders::rangeQuery('created_at')->gte(new \DateTimeImmutable('2026-01-01T00:00:00+04:00')));
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        self::assertSame(['mid'], array_column($response->getHits(), '_id'));
+    }
 }

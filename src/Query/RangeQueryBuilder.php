@@ -5,10 +5,8 @@ namespace Zvonchuk\Elastic\Query;
 class RangeQueryBuilder extends QueryBuilder
 {
     private string $field;
-    private ?string $gte = null;
-    private ?string $gt = null;
-    private ?string $lte = null;
-    private ?string $lt = null;
+    /** @var array<string, int|float|string> */
+    private array $bounds = [];
 
     public function __construct(string $field)
     {
@@ -16,36 +14,32 @@ class RangeQueryBuilder extends QueryBuilder
         $this->field = $field;
     }
 
-    public function gte(string $gte): self
+    public function gte(int|float|string|\DateTimeInterface $gte): self
     {
-        $this->gte = $gte;
-        return $this;
+        return $this->bound('gte', $gte);
     }
 
-    public function gt(string $gt): self
+    public function gt(int|float|string|\DateTimeInterface $gt): self
     {
-        $this->gt = $gt;
-        return $this;
+        return $this->bound('gt', $gt);
     }
 
-    public function lte(string $lte): self
+    public function lte(int|float|string|\DateTimeInterface $lte): self
     {
-        $this->lte = $lte;
-        return $this;
+        return $this->bound('lte', $lte);
     }
 
-    public function lt(string $lt): self
+    public function lt(int|float|string|\DateTimeInterface $lt): self
     {
-        $this->lt = $lt;
-        return $this;
+        return $this->bound('lt', $lt);
     }
 
     public function getSource()
     {
         $query = [];
         foreach (['gte', 'gt', 'lte', 'lt'] as $clause) {
-            if (isset($this->{$clause})) {
-                $query[$clause] = $this->{$clause};
+            if (isset($this->bounds[$clause])) {
+                $query[$clause] = $this->bounds[$clause];
             }
         }
 
@@ -54,5 +48,11 @@ class RangeQueryBuilder extends QueryBuilder
                 $this->field => $query
             ]
         ];
+    }
+
+    private function bound(string $clause, int|float|string|\DateTimeInterface $value): self
+    {
+        $this->bounds[$clause] = $value instanceof \DateTimeInterface ? $value->format(\DateTimeInterface::ATOM) : $value;
+        return $this;
     }
 }
