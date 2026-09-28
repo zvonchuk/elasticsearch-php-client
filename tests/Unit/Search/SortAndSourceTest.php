@@ -51,4 +51,11 @@ final class SortAndSourceTest extends TestCase
             $source->getQuery(),
         );
     }
+
+    public function testTimeoutTotalHitsAndMinScore(): void
+    {
+        $source = (new SearchSourceBuilder())->size(50)->timeout('2s')->trackTotalHits(false)->minScore(3.5);
+        self::assertRenders('{"size":50,"from":0,"timeout":"2s","track_total_hits":false,"min_score":3.5}', $source->toArray());
+        self::assertSame(10000, (new SearchSourceBuilder())->trackTotalHits(10000)->toArray()['track_total_hits']);
+    }
 }

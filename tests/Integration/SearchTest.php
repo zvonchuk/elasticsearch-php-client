@@ -317,4 +317,18 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(['match'], array_column($response->getHits(), '_id'));
     }
+
+    public function testTimeoutTotalHitsAndMinScore(): void
+    {
+        $this->seed(['strong' => ['tag' => 'a'], 'weak' => ['tag' => 'b']], ['tag' => ['type' => 'keyword']]);
+        $query = QueryBuilders::boolQuery()
+            ->should(QueryBuilders::constantScoreQuery(QueryBuilders::termQuery('tag', 'a'))->boost(5))
+            ->should(QueryBuilders::constantScoreQuery(QueryBuilders::termQuery('tag', 'b'))->boost(1));
+
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])->search((new SearchRequest($this->index))
+            ->source((new SearchSourceBuilder())->query($query)->timeout('2s')->trackTotalHits(false)->minScore(2.0)));
+
+        self::assertSame(['strong'], array_column($response->getHits(), '_id'));
+        self::assertNull($response->getTotal());
+    }
 }

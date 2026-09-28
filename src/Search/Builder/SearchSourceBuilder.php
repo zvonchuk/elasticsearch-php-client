@@ -23,6 +23,9 @@ class SearchSourceBuilder
     private array $excludeFields = [];
     /** @var list<mixed> */
     private array $searchAfter = [];
+    private ?string $timeout = null;
+    private bool|int|null $trackTotalHits = null;
+    private ?float $minScore = null;
 
     public function query(QueryInterface $query): static
     {
@@ -75,6 +78,33 @@ class SearchSourceBuilder
         return $this;
     }
 
+    /**
+     * Per-shard time limit, e.g. "2s"; on timeout Elasticsearch returns partial results with timed_out = true.
+     */
+    public function timeout(string $timeout): static
+    {
+        $this->timeout = $timeout;
+        return $this;
+    }
+
+    /**
+     * true: count all hits exactly; false: don't count (faster); int: count exactly up to this number.
+     */
+    public function trackTotalHits(bool|int $trackTotalHits): static
+    {
+        $this->trackTotalHits = $trackTotalHits;
+        return $this;
+    }
+
+    /**
+     * Leave out hits scoring below this value.
+     */
+    public function minScore(float $minScore): static
+    {
+        $this->minScore = $minScore;
+        return $this;
+    }
+
     /** @return array<string, mixed> the search request body */
     public function toArray(): array
     {
@@ -100,6 +130,15 @@ class SearchSourceBuilder
         }
         if ($this->searchAfter !== []) {
             $body['search_after'] = $this->searchAfter;
+        }
+        if ($this->timeout !== null) {
+            $body['timeout'] = $this->timeout;
+        }
+        if ($this->trackTotalHits !== null) {
+            $body['track_total_hits'] = $this->trackTotalHits;
+        }
+        if ($this->minScore !== null) {
+            $body['min_score'] = $this->minScore;
         }
 
         return $body;
