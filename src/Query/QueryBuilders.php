@@ -42,6 +42,12 @@ final class QueryBuilders
         return new MatchQueryBuilder($field, $value);
     }
 
+    /** @param list<string> $fields field names, optionally boosted: "title^3" */
+    public static function multiMatchQuery(int|float|bool|string $value, array $fields): MultiMatchQueryBuilder
+    {
+        return new MultiMatchQueryBuilder($value, $fields);
+    }
+
     public static function matchPhraseQuery(string $field, string $value): MatchPhraseQueryBuilder
     {
         return new MatchPhraseQueryBuilder($field, $value);

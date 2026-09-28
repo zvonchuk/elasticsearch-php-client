@@ -9,6 +9,7 @@ use Zvonchuk\Elastic\Core\BulkRequest;
 use Zvonchuk\Elastic\Core\CountRequest;
 use Zvonchuk\Elastic\Core\IndexRequest;
 use Zvonchuk\Elastic\Core\SearchRequest;
+use Zvonchuk\Elastic\Query\MultiMatchQueryBuilder;
 use Zvonchuk\Elastic\Query\QueryBuilders;
 use Zvonchuk\Elastic\Search\Aggregations\AggregationBuilders;
 use Zvonchuk\Elastic\Search\Builder\SearchSourceBuilder;
@@ -249,5 +250,20 @@ final class SearchTest extends IntegrationTestCase
 
         self::assertSame(1, $hits(0), 'a typo in the first letter is found when no prefix has to match');
         self::assertSame(0, $hits(1), 'and missed when the first letter has to match exactly');
+    }
+
+    public function testMultiMatchAcrossFields(): void
+    {
+        $this->seed([
+            'in_name' => ['name' => 'iphone 15', 'description' => 'phone'],
+            'in_description' => ['name' => 'case', 'description' => 'fits iphone 15'],
+            'other' => ['name' => 'laptop', 'description' => 'computer'],
+        ]);
+
+        $query = QueryBuilders::multiMatchQuery('iphone', ['name^3', 'description'])->type(MultiMatchQueryBuilder::BEST_FIELDS);
+        $response = Client::getInstance([(string) getenv('ELASTICSEARCH_URL')])
+            ->search((new SearchRequest($this->index))->source((new SearchSourceBuilder())->query($query)));
+
+        self::assertSame(['in_name', 'in_description'], array_column($response->getHits(), '_id'));
     }
 }
